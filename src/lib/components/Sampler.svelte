@@ -1,7 +1,7 @@
 <script lang="ts">
     import { onMount, onDestroy } from "svelte";
-    import { eventProcessor, sampler } from "../sampler/sampler";
-    import Dragable from "./Dragable.svelte";
+    import { eventProcessor, sampler } from "../sampler";
+    import Dragable from "./shared/Dragable.svelte";
     import Library from "./Library.svelte";
     import Sequencer from "./Sequencer.svelte";
     import Pads from "./Pads.svelte";
@@ -41,12 +41,18 @@
 
 <style>
     #sampler {
+        width: 100%;
+        height: 100%;
         display: grid;
         gap: 20px;
+        grid-template-columns: repeat(2, fit-content(100%));
         grid-template-areas:
             "library pads"
-            "sequencer sequencer";
+            "library sequencer";
     }
+    /* #sampler > div {
+        width: 100%;
+    } */
     #pads-container {
         grid-area: pads;
     }

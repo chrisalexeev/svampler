@@ -1,5 +1,5 @@
 <script lang="ts">
-    import { sampler } from "../sampler/sampler";
+    import { sampler } from "../sampler";
 </script>
 
 <div id="library">
@@ -10,7 +10,6 @@
 
 <style>
     #library {
-        max-height: 500px;
         overflow-y: auto;
         position: relative;
         display: flex;

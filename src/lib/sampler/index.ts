@@ -1,0 +1,1 @@
+export { sampler, eventProcessor } from './sampler';

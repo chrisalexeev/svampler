@@ -1,6 +1,6 @@
 <script lang="ts">
-    import { eventProcessor } from "../sampler/sampler";
-    import Dragable from "./Dragable.svelte";
+    import { eventProcessor } from "../sampler";
+    import Dragable from "./shared/Dragable.svelte";
 
     let bpm = 120;
     let interval: number;
