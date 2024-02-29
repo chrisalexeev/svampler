@@ -1,5 +1,5 @@
 <script lang="ts">
-    import { eventProcessor } from "../sampler/vtsampler";
+    import { eventProcessor } from "../sampler/sampler";
     import Dragable from "./Dragable.svelte";
 
     let bpm = 120;
@@ -74,7 +74,7 @@
         debounceTimer = setTimeout(() => {
             bpm = value;
             if (running) restart();
-        }, 100); // Adjust the debounce delay as needed (e.g., 300 milliseconds)
+        }, 100);
     };
 </script>
 

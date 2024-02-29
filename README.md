@@ -23,4 +23,4 @@ This will generate an `environment.json` in the `public` folder. This is what th
 
 ## Features
 
-Each major visual component can be dragged and dropped. For now that's it for frill.
+Each major visual component can be dragged and dropped. For now that's all the frill.

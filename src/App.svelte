@@ -1,6 +1,6 @@
 <script lang="ts">
-  import { sampler } from "./lib/sampler/vtsampler";
-  import { eventProcessor } from "./lib/sampler/vtsampler";
+  import { sampler } from "./lib/sampler/sampler";
+  import { eventProcessor } from "./lib/sampler/sampler";
     import Sampler from "./lib/components/Sampler.svelte";
   let init = false;
 </script>

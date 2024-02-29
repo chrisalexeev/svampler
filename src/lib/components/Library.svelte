@@ -1,5 +1,5 @@
 <script lang="ts">
-    import { sampler } from "../sampler/vtsampler";
+    import { sampler } from "../sampler/sampler";
 </script>
 
 <div id="library">

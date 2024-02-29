@@ -1,6 +1,6 @@
 <script lang="ts">
     import { onMount, onDestroy } from "svelte";
-    import { eventProcessor, sampler } from "../sampler/vtsampler";
+    import { eventProcessor, sampler } from "../sampler/sampler";
     import Dragable from "./Dragable.svelte";
     import Library from "./Library.svelte";
     import Sequencer from "./Sequencer.svelte";

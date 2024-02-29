@@ -1,5 +1,5 @@
 <script lang="ts">
-    import { eventProcessor } from "../sampler/vtsampler";
+    import { eventProcessor } from "../sampler/sampler";
     export let name: string;
     export let key: string | null = null;
     let pressed = false;
