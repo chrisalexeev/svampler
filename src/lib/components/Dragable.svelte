@@ -1,17 +1,17 @@
 <script lang="ts">
     import { beforeUpdate, onDestroy, onMount } from "svelte";
 
-    export let handle: HTMLElement | null = null;
+    export let handles: HTMLElement[] = [];
     let handleHasEventListeners = false;
     let container: HTMLElement | null = null;
 
-    let positionX = 0;
-    let positionY = 0;
+    let offestX = 0;
+    let offsetY = 0;
     let mouseX = 0;
     let mouseY = 0;
     let isMouseOverHandle = false;
     let draggable = true;
-    $: draggable = !handle || isMouseOverHandle;
+    $: draggable = !handles.length || isMouseOverHandle;
 
     function handleHandlerEnter() {
         isMouseOverHandle = true;
@@ -20,8 +20,8 @@
         isMouseOverHandle = false;
     }
     function getNewOffset(e: DragEvent) {
-        const x = positionX + e.x - mouseX;
-        const y = positionY + e.y - mouseY;
+        const x = offestX + e.x - mouseX;
+        const y = offsetY + e.y - mouseY;
         return { x, y };
     }
     function drag(e: DragEvent) {
@@ -37,8 +37,8 @@
         e.preventDefault();
         drag(e);
         const { x, y } = getNewOffset(e);
-        positionX = x;
-        positionY = y;
+        offestX = x;
+        offsetY = y;
     }
     function handleDragStart(e: DragEvent) {
         let crt = (e.target! as HTMLElement).cloneNode(true);
@@ -57,18 +57,22 @@
     }
 
     function addHandleListener() {
-        if (!handle) return;
-        handle.addEventListener("mouseover", handleHandlerEnter);
-        handle.addEventListener("mouseleave", handleHandlerExit);
-        handle.style.cursor = "grab";
+        if (!handles.length) return;
+        handles.forEach((handle) => {
+            handle.addEventListener("mouseover", handleHandlerEnter);
+            handle.addEventListener("mouseleave", handleHandlerExit);
+            handle.style.cursor = "grab";
+        });
         container!.style.cursor = "auto";
         handleHasEventListeners = true;
     }
     function removeHandleListener() {
-        if (!handle) return;
-        handle.removeEventListener("mouseover", handleHandlerEnter);
-        handle.removeEventListener("mouseleave", handleHandlerExit);
-        handle.style.cursor = "auto";
+        if (!handles.length) return;
+        handles.forEach((handle) => {
+            handle.removeEventListener("mouseover", handleHandlerEnter);
+            handle.removeEventListener("mouseleave", handleHandlerExit);
+            handle.style.cursor = "auto";
+        });
         container!.style.cursor = "grab";
         handleHasEventListeners = false;
     }
@@ -76,7 +80,7 @@
     onMount(() => {
         window.addEventListener("mousemove", handleMouseMove);
         window.addEventListener("touchmove", handleTouchMove);
-        if (handle) addHandleListener();
+        if (handles.length) addHandleListener();
     });
 
     beforeUpdate(() => {

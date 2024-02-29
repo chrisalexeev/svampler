@@ -8,7 +8,10 @@
     let running = false;
     const slots: string[][] = new Array(16).fill([]); // TODO: make single array
     let idx = 0;
-    let handle: HTMLElement | null = null;
+    let handle0: HTMLElement | null = null;
+    let handle1: HTMLElement | null = null;
+    let handles: HTMLElement[] = [];
+    $: handles = [handle0, handle1].filter((h) => h !== null) as HTMLElement[];
 
     $: onChangeTempo(bpm);
 
@@ -71,9 +74,9 @@
     };
 </script>
 
-<Dragable {handle}>
+<Dragable {handles}>
     <div id="sequencer">
-        <div class="controls">
+        <div id="controls" bind:this={handle0}>
             <div id="bpm">
                 <label for="bpm">BPM: {bpm}</label>
                 <input
@@ -89,7 +92,7 @@
             <button on:click={clear}>Clear</button>
         </div>
         <div class="slots-container">
-            <div class="slot-labels" bind:this={handle}>
+            <div class="slot-labels" bind:this={handle1}>
                 {#each sounds as sound}
                     <span>{sound[0]}</span>
                 {/each}
@@ -128,6 +131,8 @@
         display: flex;
         flex-direction: column;
         gap: 10px;
+        align-items: center;
+        z-index: 1000;
     }
     input[type="checkbox"] {
         /* Add if not using autoprefixer */
@@ -163,9 +168,11 @@
     input[type="checkbox"]:checked {
         background-color: red;
     }
-    .controls {
+    #controls {
         display: flex;
         gap: 10px;
+        width: 100%;
+        justify-content: center;
     }
     .slots-container {
         display: flex;
