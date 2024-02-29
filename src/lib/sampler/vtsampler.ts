@@ -130,7 +130,6 @@ class Sampler {
         }
         source.connect(this.bus!);
         source.start(this.ctx.currentTime, 0, source.buffer.duration);
-        console.timeEnd("hit");
         source.onended = () => {
             source.disconnect();
         }

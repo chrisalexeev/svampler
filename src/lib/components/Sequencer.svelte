@@ -6,8 +6,9 @@
     let interval: number;
     let debounceTimer: number;
     let running = false;
-    const slots: string[][] = new Array(16).fill([]); //TODO: make single array
+    const slots: string[][] = new Array(16).fill([]); // TODO: make single array
     let idx = 0;
+    let handle: HTMLElement | null = null;
 
     $: onChangeTempo(bpm);
 
@@ -70,49 +71,51 @@
     };
 </script>
 
-<div id="sequencer">
-    <div class="controls">
-        <div id="bpm">
-            <label for="bpm">BPM: {bpm}</label>
-            <input
-                name="bpm"
-                type="range"
-                bind:value={bpm}
-                min="60"
-                max="240"
-            />
+<Dragable {handle}>
+    <div id="sequencer">
+        <div class="controls">
+            <div id="bpm">
+                <label for="bpm">BPM: {bpm}</label>
+                <input
+                    name="bpm"
+                    type="range"
+                    min="60"
+                    max="240"
+                    bind:value={bpm}
+                />
+            </div>
+            <button on:click={start}>Start</button>
+            <button on:click={stop}>Stop</button>
+            <button on:click={clear}>Clear</button>
         </div>
-        <button on:click={start}>Start</button>
-        <button on:click={stop}>Stop</button>
-        <button on:click={clear}>Clear</button>
+        <div class="slots-container">
+            <div class="slot-labels" bind:this={handle}>
+                {#each sounds as sound}
+                    <span>{sound[0]}</span>
+                {/each}
+            </div>
+            <div class="slots">
+                {#each slots as _, i}
+                    <div class="slot" class:active={i === idx}>
+                        {#each sounds as sound}
+                            <button
+                                class="slot-sound"
+                                on:click={() => toggleSlotSound(i, sound)}
+                            >
+                                <input
+                                    type="checkbox"
+                                    class="sound-name"
+                                    name={`${i}-${sound}`}
+                                    checked={slots[i].includes(sound)}
+                                />
+                            </button>
+                        {/each}
+                    </div>
+                {/each}
+            </div>
+        </div>
     </div>
-    <div class="slots-container">
-        <div class="slot-labels">
-            {#each sounds as sound}
-                <span>{sound[0]}</span>
-            {/each}
-        </div>
-        <div class="slots">
-            {#each slots as _, i}
-                <div class="slot" class:active={i === idx}>
-                    {#each sounds as sound}
-                        <button
-                            class="slot-sound"
-                            on:click={() => toggleSlotSound(i, sound)}
-                        >
-                            <input
-                                type="checkbox"
-                                class="sound-name"
-                                name={`${i}-${sound}`}
-                                checked={slots[i].includes(sound)}
-                            />
-                        </button>
-                    {/each}
-                </div>
-            {/each}
-        </div>
-    </div>
-</div>
+</Dragable>
 
 <style>
     #sequencer {
@@ -166,7 +169,6 @@
     }
     .slots-container {
         display: flex;
-        gap: 10px;
     }
     .slots {
         display: flex;
@@ -185,6 +187,7 @@
         flex-direction: column;
         flex: 1;
         align-items: space-around;
+        padding: 0 10px;
     }
 
     .slot-labels > span {

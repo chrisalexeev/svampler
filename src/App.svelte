@@ -39,9 +39,9 @@
       <Dragable>
         <Pads {pads} />
       </Dragable>
-      <Dragable>
+      <!-- <Dragable> -->
         <Sequencer />
-      </Dragable>
+      <!-- </Dragable> -->
     </div>
   {/if}
 </main>
