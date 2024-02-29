@@ -1,0 +1,8 @@
+/* BEGIN: Reset browser styles */
+@import url('https://cdnjs.cloudflare.com/ajax/libs/normalize/8.0.1/normalize.min.css');
+/* END: Reset browser styles */
+
+html, body, #app {
+  height: 100%;
+  font-family: 'Kodo Mono', monospace;
+}
