@@ -16,7 +16,6 @@
     $: handles = [handle0, handle1].filter((h) => h !== null) as HTMLElement[];
     $: antiHandles = [anitHandle0].filter((h) => h !== null) as HTMLElement[];
 
-
     $: onChangeTempo(bpm);
 
     const start = () => {

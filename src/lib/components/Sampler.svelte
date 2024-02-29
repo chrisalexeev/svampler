@@ -43,7 +43,7 @@
     #sampler {
         display: grid;
         gap: 20px;
-        grid-template-areas: 
+        grid-template-areas:
             "library pads"
             "sequencer sequencer";
     }

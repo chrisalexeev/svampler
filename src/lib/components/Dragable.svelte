@@ -72,7 +72,7 @@
         antiHandles.forEach((handle) => {
             handle.addEventListener("mouseover", handleAntiHandlerEnter);
             handle.addEventListener("mouseleave", handleAntiHandlerExit);
-            handle.style.cursor = "pointer"
+            handle.style.cursor = "pointer";
         });
         antiHandleHasEventListeners = true;
     }
@@ -81,7 +81,7 @@
         antiHandles.forEach((handle) => {
             handle.removeEventListener("mouseover", handleAntiHandlerEnter);
             handle.removeEventListener("mouseleave", handleAntiHandlerExit);
-            handle.style.cursor = "pointer"
+            handle.style.cursor = "pointer";
         });
         antiHandleHasEventListeners = false;
     }

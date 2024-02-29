@@ -10,13 +10,13 @@
         setTimeout(() => {
             pressed = false;
         }, 50);
-    })
+    });
 </script>
 
 <button class={className} on:click={() => eventProcessor.dispatchEvent(name)}>
-{#if name}
-    {name + (key ? ` (${key})` : "")}
-{/if}
+    {#if name}
+        {name + (key ? ` (${key})` : "")}
+    {/if}
 </button>
 
 <style>
