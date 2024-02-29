@@ -63,22 +63,18 @@ class MixBus {
 
 class Sampler {
     library: VTSampleLibrary;
-    eventProcessor: EventProcessor;
-    samples: Record<string, AudioBuffer | null> = {};
-    ctx: AudioContext | null = null;
-    bus: AudioNode | null = null;
+    private eventProcessor: EventProcessor;
+    private samples: Record<string, AudioBuffer | null> = {};
+    private ctx: AudioContext | null = null;
+    private bus: AudioNode | null = null;
     // reverb: ConvolverNode | null = null;
 
     constructor(
-        audioContext?: AudioContext,
-        library?: VTSampleLibrary,
-        eventProcessor?: EventProcessor,
+        eventProcessor: EventProcessor,
+        library: VTSampleLibrary,
     ) {
-        if (audioContext) {
-            this.initAudioContext(audioContext);
-        }
-        this.library = library ?? new VTSampleLibrary();
-        this.eventProcessor = eventProcessor ?? new EventProcessor();
+        this.eventProcessor = eventProcessor;
+        this.library = library;
     }
 
     initAudioContext(ctx: AudioContext) {
@@ -86,9 +82,8 @@ class Sampler {
         this.bus = new MixBus(this.ctx).input;
     }
 
-    async init(eventProcessor: EventProcessor) {
-        this.eventProcessor = eventProcessor;
-        !this.ctx && this.initAudioContext(new AudioContext());
+    async init() {
+        this.initAudioContext(new AudioContext());
         const instruments = [
             "kick", "snare", "hihat"
         ]
@@ -136,4 +131,6 @@ class Sampler {
     }
 }
 
-export const sampler = new Sampler();
+const library = new VTSampleLibrary();
+export const eventProcessor = new EventProcessor();
+export const sampler = new Sampler(eventProcessor, library);

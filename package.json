@@ -1,6 +1,10 @@
 {
   "name": "svampler",
   "private": true,
+  "author": {
+    "name": "Christopher Alexeev",
+    "email": "chrisalexeev@gmail.com"
+  },
   "version": "0.0.0",
   "type": "module",
   "scripts": {

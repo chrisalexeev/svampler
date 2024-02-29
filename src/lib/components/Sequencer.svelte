@@ -1,5 +1,5 @@
 <script lang="ts">
-    import { eventProcessor } from "../store";
+    import { eventProcessor } from "../sampler/vtsampler";
     import Dragable from "./Dragable.svelte";
 
     let bpm = 120;
