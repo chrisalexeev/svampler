@@ -10,8 +10,12 @@
     let idx = 0;
     let handle0: HTMLElement | null = null;
     let handle1: HTMLElement | null = null;
+    let anitHandle0: HTMLElement | null = null;
     let handles: HTMLElement[] = [];
+    let antiHandles: HTMLElement[] = [];
     $: handles = [handle0, handle1].filter((h) => h !== null) as HTMLElement[];
+    $: antiHandles = [anitHandle0].filter((h) => h !== null) as HTMLElement[];
+
 
     $: onChangeTempo(bpm);
 
@@ -74,10 +78,10 @@
     };
 </script>
 
-<Dragable {handles}>
+<Dragable {handles} {antiHandles}>
     <div id="sequencer">
         <div id="controls" bind:this={handle0}>
-            <div id="bpm">
+            <div id="bpm" bind:this={anitHandle0}>
                 <label for="bpm">BPM: {bpm}</label>
                 <input
                     name="bpm"

@@ -2,22 +2,33 @@
     import { beforeUpdate, onDestroy, onMount } from "svelte";
 
     export let handles: HTMLElement[] = [];
+    export let antiHandles: HTMLElement[] = [];
     let handleHasEventListeners = false;
+    let antiHandleHasEventListeners = false;
     let container: HTMLElement | null = null;
+    let crt: Node | null = null;
 
     let offestX = 0;
     let offsetY = 0;
     let mouseX = 0;
     let mouseY = 0;
     let isMouseOverHandle = false;
+    let isMouseOverAntiHandle = false;
     let draggable = true;
-    $: draggable = !handles.length || isMouseOverHandle;
+    $: draggable =
+        !isMouseOverAntiHandle && (!handles.length || isMouseOverHandle);
 
     function handleHandlerEnter() {
         isMouseOverHandle = true;
     }
     function handleHandlerExit() {
         isMouseOverHandle = false;
+    }
+    function handleAntiHandlerEnter() {
+        isMouseOverAntiHandle = true;
+    }
+    function handleAntiHandlerExit() {
+        isMouseOverAntiHandle = false;
     }
     function getNewOffset(e: DragEvent) {
         const x = offestX + e.x - mouseX;
@@ -39,9 +50,10 @@
         const { x, y } = getNewOffset(e);
         offestX = x;
         offsetY = y;
+        document.body.removeChild(crt!);
     }
     function handleDragStart(e: DragEvent) {
-        let crt = (e.target! as HTMLElement).cloneNode(true);
+        crt = (e.target! as HTMLElement).cloneNode(true);
         (crt as HTMLElement).style.backgroundColor = "red";
         (crt as HTMLElement).style.display = "none";
         document.body.appendChild(crt);
@@ -55,8 +67,25 @@
         mouseX = e.touches[0].clientX;
         mouseY = e.touches[0].clientY;
     }
-
-    function addHandleListener() {
+    function addAntiHandleListeners() {
+        if (!antiHandles.length) return;
+        antiHandles.forEach((handle) => {
+            handle.addEventListener("mouseover", handleAntiHandlerEnter);
+            handle.addEventListener("mouseleave", handleAntiHandlerExit);
+            handle.style.cursor = "pointer"
+        });
+        antiHandleHasEventListeners = true;
+    }
+    function removeAntiHandleListeners() {
+        if (!antiHandles.length) return;
+        antiHandles.forEach((handle) => {
+            handle.removeEventListener("mouseover", handleAntiHandlerEnter);
+            handle.removeEventListener("mouseleave", handleAntiHandlerExit);
+            handle.style.cursor = "pointer"
+        });
+        antiHandleHasEventListeners = false;
+    }
+    function addHandleListeners() {
         if (!handles.length) return;
         handles.forEach((handle) => {
             handle.addEventListener("mouseover", handleHandlerEnter);
@@ -66,7 +95,7 @@
         container!.style.cursor = "auto";
         handleHasEventListeners = true;
     }
-    function removeHandleListener() {
+    function removeHandleListeners() {
         if (!handles.length) return;
         handles.forEach((handle) => {
             handle.removeEventListener("mouseover", handleHandlerEnter);
@@ -80,20 +109,26 @@
     onMount(() => {
         window.addEventListener("mousemove", handleMouseMove);
         window.addEventListener("touchmove", handleTouchMove);
-        if (handles.length) addHandleListener();
+        if (handles.length) addHandleListeners();
+        if (antiHandles.length) addAntiHandleListeners();
     });
 
     beforeUpdate(() => {
-        
-        if (handleHasEventListeners) return;
-        removeHandleListener();
-        addHandleListener();
+        if (!handleHasEventListeners) {
+            removeHandleListeners();
+            addHandleListeners();
+        }
+        if (!antiHandleHasEventListeners) {
+            removeAntiHandleListeners();
+            addAntiHandleListeners();
+        }
     });
 
     onDestroy(() => {
         window.removeEventListener("mousemove", handleMouseMove);
         window.removeEventListener("touchmove", handleTouchMove);
-        if (handleHasEventListeners) removeHandleListener();
+        if (handleHasEventListeners) removeHandleListeners();
+        if (antiHandles.length) removeAntiHandleListeners();
     });
 </script>
 
