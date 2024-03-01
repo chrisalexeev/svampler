@@ -12,9 +12,7 @@
     ];
     const handleKeyDown = (e: KeyboardEvent) => {
         const pad = pads.find((pad) => pad.key === e.key);
-        if (pad) {
-            eventProcessor.dispatchEvent(pad.sound);
-        }
+        if (pad) eventProcessor.dispatchEvent(pad.sound);
     };
     onMount(() => {
         sampler.init();
@@ -45,14 +43,11 @@
         height: 100%;
         display: grid;
         gap: 20px;
-        grid-template-columns: repeat(2, fit-content(100%));
+        grid-template-columns: repeat(2, fit-content(50%));
         grid-template-areas:
             "library pads"
             "library sequencer";
     }
-    /* #sampler > div {
-        width: 100%;
-    } */
     #pads-container {
         grid-area: pads;
     }
@@ -61,5 +56,6 @@
     }
     #library-container {
         grid-area: library;
+        height: 100%;
     }
 </style>
