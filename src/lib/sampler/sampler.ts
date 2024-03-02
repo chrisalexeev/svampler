@@ -20,6 +20,7 @@ export class EventProcessor {
 
 class VTSampleLibrary {
     samples: Record<string, AudioBuffer | null> = {};
+
     constructor() {
         this.samples = {};
         this.loadSampleList();
@@ -86,6 +87,7 @@ class MixBus {
 
 class Sampler {
     library: VTSampleLibrary;
+    readonly maxSamples = 8;
 
     private eventProcessor: EventProcessor;
     private samples: Record<string, AudioBuffer | null> = {};

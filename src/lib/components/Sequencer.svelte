@@ -1,14 +1,15 @@
 <script lang="ts">
-    import { eventProcessor } from "../sampler";
+    import { sampler, eventProcessor } from "../sampler";
     import Dragable from "./shared/Dragable.svelte";
 
-    export let numBeats = 16;
+    export let numBeats = 32;
+    const numSlots = sampler.maxSamples;
 
     let bpm = 120;
     let interval: number;
     let debounceTimer: number;
     let running = false;
-    const slots: string[][] = new Array(numBeats).fill([]); // TODO: make single array
+    const slots: number[][] = new Array(numBeats).fill([]); // TODO: make single array
     let idx = 0;
     let handle0: HTMLElement | null = null;
     let handle1: HTMLElement | null = null;
@@ -59,19 +60,17 @@
         idx = (idx + 1) % numBeats;
     };
 
-    const toggleSlotSound = (i: number, sound: string) => {
-        const slot = slots[i];
+    const toggleSlotSound = (beat: number, sound: number) => {
+        const slot = slots[beat];
         const idx = slot.indexOf(sound);
         if (idx === -1) {
-            slots[i] = [...slot, sound];
+            slots[beat] = [...slot, sound];
         } else {
-            slots[i] = [...slot.slice(0, idx), ...slot.slice(idx + 1)];
+            slots[beat] = [...slot.slice(0, idx), ...slot.slice(idx + 1)];
         }
     };
 
-    const sounds = ["hihat", "snare", "kick"];
-
-    const onChangeTempo = (value: number) => {
+    function onChangeTempo(value: number) {
         clearTimeout(debounceTimer);
         debounceTimer = setTimeout(() => {
             bpm = value;
@@ -99,23 +98,23 @@
         </div>
         <div class="slots-container">
             <div class="slot-labels" bind:this={handle1}>
-                {#each sounds as sound}
-                    <span>{sound[0]}</span>
+                {#each {length: numSlots} as _, i}
+                    <span>{i}</span>
                 {/each}
             </div>
             <div class="slots">
                 {#each slots as _, i}
                     <div class="slot" class:active={i === idx}>
-                        {#each sounds as sound}
+                        {#each {length: numSlots} as _, j}
                             <button
                                 class="slot-sound"
-                                on:click={() => toggleSlotSound(i, sound)}
+                                on:click={() => toggleSlotSound(i, j)}
                             >
                                 <input
                                     type="checkbox"
                                     class="sound-name"
-                                    name={`${i}-${sound}`}
-                                    checked={slots[i].includes(sound)}
+                                    name={`${i}-${j}`}
+                                    checked={slots[i].includes(j)}
                                 />
                             </button>
                         {/each}
