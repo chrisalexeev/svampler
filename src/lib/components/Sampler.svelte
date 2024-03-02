@@ -26,7 +26,7 @@
 <div id="sampler">
     <div id="pads-container">
         <Dragable>
-            <Pads {pads} />
+            <Pads />
         </Dragable>
     </div>
     <div id="sequencer-container">
@@ -57,5 +57,6 @@
     #library-container {
         grid-area: library;
         height: 100%;
+        overflow-y: auto;
     }
 </style>

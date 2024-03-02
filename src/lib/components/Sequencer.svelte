@@ -2,23 +2,26 @@
     import { eventProcessor } from "../sampler";
     import Dragable from "./shared/Dragable.svelte";
 
+    export let numBeats = 16;
+
     let bpm = 120;
     let interval: number;
     let debounceTimer: number;
     let running = false;
-    const slots: string[][] = new Array(16).fill([]); // TODO: make single array
+    const slots: string[][] = new Array(numBeats).fill([]); // TODO: make single array
     let idx = 0;
     let handle0: HTMLElement | null = null;
     let handle1: HTMLElement | null = null;
     let anitHandle0: HTMLElement | null = null;
     let handles: HTMLElement[] = [];
     let antiHandles: HTMLElement[] = [];
+
     $: handles = [handle0, handle1].filter((h) => h !== null) as HTMLElement[];
     $: antiHandles = [anitHandle0].filter((h) => h !== null) as HTMLElement[];
 
     $: onChangeTempo(bpm);
 
-    const start = () => {
+    function start() {
         if (running) {
             return;
         } else {
@@ -32,13 +35,13 @@
         }
     };
 
-    const stop = () => {
+    function stop() {
         if (!running) idx = 0;
         clearInterval(interval);
         running = false;
     };
 
-    const restart = () => {
+    function restart() {
         stop();
         start();
     };
@@ -49,11 +52,11 @@
         });
     }
 
-    const tick = () => {
+    function tick() {
         slots[idx].forEach((sound) => {
             eventProcessor.dispatchEvent(sound);
         });
-        idx = (idx + 1) % 16;
+        idx = (idx + 1) % numBeats;
     };
 
     const toggleSlotSound = (i: number, sound: string) => {

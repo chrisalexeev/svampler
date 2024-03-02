@@ -23,6 +23,7 @@
     height: 100%;
     background-color: hsl(0, 0%, 10%);
     color: white;
+    overflow: hidden;
     -ms-overflow-style: none; /* hide scrollbar in IE and Edge */
     scrollbar-width: none; /* hide scrollbar in Firefox */
   }

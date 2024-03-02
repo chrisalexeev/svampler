@@ -1,11 +1,40 @@
 <script lang="ts">
-    import { eventProcessor } from "../sampler";
+    import { onDestroy, onMount } from "svelte";
+    import { eventProcessor, sampler } from "../sampler";
     export let name: string;
-    export let key: string | null = null;
-    let pressed = false;
+    export let slot: number;
+    export let key: string;
+    let drop: HTMLButtonElement;
     let className = "drum-pad";
     $: className = pressed ? "drum-pad active" : "drum-pad";
-    eventProcessor.subscribe(name, () => {
+
+    function handleDragover(e: DragEvent) {
+        e.preventDefault();
+    };
+    function handleDrop(e: DragEvent) {
+        e.preventDefault();
+        const text = e.dataTransfer?.getData("text");
+        if (!text) return;
+        sampler.loadSample(slot, text);
+    };
+    function handleKeyDown(e: KeyboardEvent) {
+        if (e.key === key) eventProcessor.dispatchEvent(slot);
+    };
+
+    onMount(() => {
+        drop.addEventListener("dragover", handleDragover);
+        drop.addEventListener("drop", handleDrop);
+        document.addEventListener("keydown", handleKeyDown);
+    });
+
+    onDestroy(() => {
+        drop.removeEventListener("dragover", handleDragover);
+        drop.removeEventListener("drop", handleDrop);
+        document.removeEventListener("keydown", handleKeyDown);
+    });
+
+    let pressed = false;
+    eventProcessor.subscribe(slot, () => {
         pressed = true;
         setTimeout(() => {
             pressed = false;
@@ -13,10 +42,12 @@
     });
 </script>
 
-<button class={className} on:click={() => eventProcessor.dispatchEvent(name)}>
-    {#if name}
-        {name + (key ? ` (${key})` : "")}
-    {/if}
+<button
+    class={className}
+    on:click={() => eventProcessor.dispatchEvent(slot)}
+    bind:this={drop}
+>
+    {name + (key ? ` (${key})` : "")}
 </button>
 
 <style>
