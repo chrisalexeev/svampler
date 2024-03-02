@@ -126,6 +126,7 @@
 </Dragable>
 
 <style>
+    /* TODO: clean all this up */
     #sequencer {
         display: flex;
         flex-direction: column;
@@ -144,7 +145,7 @@
         -webkit-appearance: none;
         appearance: none;
         /* For iOS < 15 to remove gradient background */
-        background-color: #fff;
+        background-color: transparent;
         /* Not removed via appearance */
         margin: 0;
 
@@ -152,8 +153,8 @@
         color: currentColor;
         width: 1.15em;
         height: 1.15em;
-        border: 0.15em solid currentColor;
-        border-radius: 0.15em;
+        border: 1px rgba(255, 255, 255, 0.1) dashed;
+        border-radius: 100%;
         transform: translateY(-0.075em);
         display: grid;
         place-content: center;
@@ -163,7 +164,7 @@
         width: 0.65em;
         height: 0.65em;
         transform: scale(0);
-        transition: 120ms transform ease-in-out;
+        transition: 1200ms transform ease-in-out;
         box-shadow: inset 1em 1em var(--form-control-color);
     }
 
@@ -172,6 +173,7 @@
     }
     input[type="checkbox"]:checked {
         background-color: red;
+        border: 0;
     }
     #controls {
         display: flex;
@@ -185,7 +187,7 @@
     .slots {
         display: flex;
         border: solid rgb(64, 64, 64) 2px;
-        border-radius: 4px;
+        /* border-radius: 4px; */
     }
 
     .slots > :nth-child(4n) {
@@ -210,7 +212,7 @@
 
     .slot {
         display: flex;
-        flex-direction: column;
+        flex-direction: column;        
     }
 
     .slot-sound {
@@ -231,7 +233,7 @@
 
     .slot > * {
         /* Styles for all child elements */
-        padding: 15px 15px;
+        padding: 5px;
     }
 
     .slot.active {
