@@ -143,8 +143,12 @@ class Sampler {
             source.disconnect();
         }
     }
+    
+    get context() {
+        return this.ctx;
+    }
 }
 
-const library = new VTSampleLibrary();
+export const library = new VTSampleLibrary();
 export const eventProcessor = new EventProcessor();
 export const sampler = new Sampler(eventProcessor, library);
