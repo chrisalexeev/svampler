@@ -1,25 +1,13 @@
 <script lang="ts">
-    import { onMount, onDestroy } from "svelte";
-    import { eventProcessor, sampler } from "../sampler";
+    import { onMount } from "svelte";
+    import { sampler } from "../sampler";
     import Dragable from "./shared/Dragable.svelte";
     import Library from "./Library.svelte";
     import Sequencer from "./Sequencer.svelte";
     import Pads from "./Pads.svelte";
-    const pads = [
-        { key: "a", sound: "kick" },
-        { key: "s", sound: "snare" },
-        { key: "d", sound: "hihat" },
-    ];
-    const handleKeyDown = (e: KeyboardEvent) => {
-        const pad = pads.find((pad) => pad.key === e.key);
-        if (pad) eventProcessor.dispatchEvent(pad.sound);
-    };
+
     onMount(() => {
         sampler.init();
-        window.addEventListener("keydown", handleKeyDown);
-    });
-    onDestroy(() => {
-        window.removeEventListener("keydown", handleKeyDown);
     });
 </script>
 
