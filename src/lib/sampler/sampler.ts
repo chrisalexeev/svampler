@@ -1,4 +1,4 @@
-// import { AdvancedReverb } from "./reverb";
+import { CustomAudioNode } from "./customAudioNode";
 
 export class EventProcessor {
     private subscriberMap: Record<string | number, ((topic: string | number) => void)[]> = {};
@@ -19,7 +19,7 @@ export class EventProcessor {
 }
 
 class VTSampleLibrary {
-    samples: Record<string, AudioBuffer | null> = {};
+    samples: Record<string, Sample | null> = {};
 
     constructor() {
         this.samples = {};
@@ -36,11 +36,9 @@ class VTSampleLibrary {
             return this.samples[url];
         }
         try {
-            const response = await fetch(`/samples/${url}`);
-            const buffer = await response.arrayBuffer();
-            const audioBuffer = await ctx.decodeAudioData(buffer);
-            this.samples[url] = audioBuffer;
-            return audioBuffer;
+            const sample = await (new Sample(ctx).load(`/samples/${url}`));
+            this.samples[url] = sample;
+            return sample;
         } catch (e) {
             throw new Error(`Failed to load sample ${url}: ${e}`);
         }
@@ -48,19 +46,18 @@ class VTSampleLibrary {
 
     async previewSample(ctx: AudioContext, url: string) {
         const sample = await this.loadSample(ctx, url);
-        const source = ctx.createBufferSource();
-        source.buffer = sample;
-        source.connect(ctx.destination);
-        source.start(ctx.currentTime, 0, sample!.duration);
-        source.onended = () => {
-            source.disconnect();
-        }
+        if (!sample) return;
+        if (!sample.sampleBuffer) return;
+        sample.output.connect(ctx.destination);
+        sample.play();
     }
 }
 
 class MixBus {
     private compressor: DynamicsCompressorNode;
     private gainNode: GainNode;
+    private customWorklet: CustomAudioNode | undefined;
+
     constructor(audioContext: AudioContext) {
         this.gainNode = audioContext.createGain();
         // const reverb = new AdvancedReverb(audioContext);
@@ -72,28 +69,90 @@ class MixBus {
         this.compressor.attack.setValueAtTime(0.01, audioContext.currentTime);
         this.compressor.release.setValueAtTime(0.01, audioContext.currentTime);
         // reverb.connect(this.compressor);
-        this.gainNode.connect(this.compressor);
-        this.compressor.connect(audioContext.destination);
+        // this.gainNode.connect(this.compressor);
+        audioContext.audioWorklet.addModule('/customProcessor.umd.js').then(() => {
+            this.customWorklet = new CustomAudioNode(audioContext, 48000, {
+                numberOfInputs: 1,
+                numberOfOutputs: 1,
+                outputChannelCount: [1],
+            });
+            const splitterNode = audioContext.createChannelSplitter(2);
+            const mergerNode = audioContext.createChannelMerger(2);
+            this.gainNode.connect(splitterNode);
+            splitterNode.connect(this.customWorklet, 0, 0);
+            splitterNode.connect(this.compressor, 0, 0);
+            this.customWorklet.connect(mergerNode, 0, 0);
+            this.compressor.connect(mergerNode, 0, 1);
+            mergerNode.connect(audioContext.destination);
+            // this.compressor.connect(audioContext.destination);
+        })
+            .catch((e) => {
+                console.error(e);
+                this.compressor.connect(audioContext.destination);
+            });
     }
     get input() {
         return this.gainNode;
     }
+
+    destroy() {
+        // this.customWorklet?.destroy();
+    }
 }
 
-// interface Sample {
-//     name: string;
-//     buffer: AudioBuffer;
-// }
+class Sample {
+    context: AudioContext;
+    sampleBuffer: AudioBuffer | null;
+    loaded: boolean;
+    output: GainNode;
+
+    constructor(context: AudioContext) {
+        this.context = context;
+        this.sampleBuffer = null;
+        this.loaded = false;
+        this.output = this.context.createGain();
+        this.output.gain.value = 1;
+    }
+
+    play() {
+        if (!this.loaded) return;
+        const buffer = this.context.createBufferSource();
+        buffer.buffer = this.sampleBuffer;
+        buffer.connect(this.output);
+        buffer.start(this.context.currentTime, 0, this.sampleBuffer!.duration);
+        buffer.onended = () => {
+            buffer!.disconnect();
+        }
+    }
+
+    connect(input: DynamicsCompressorNode) {
+        this.output.connect(input);
+    }
+
+    set gain(value: number) {
+        this.output.gain.value = value;
+    }
+
+    async load(path: RequestInfo | URL) {
+        this.loaded = false;
+        const response = await fetch(path);
+        const blob = await response.arrayBuffer();
+        const buffer = await this.context.decodeAudioData(blob);
+        this.sampleBuffer = buffer;
+        this.loaded = true;
+        return this;
+    }
+}
 
 class Sampler {
     library: VTSampleLibrary;
+    samples: Record<string, Sample | null> = {};
+    
     readonly maxSamples = 8;
 
     private eventProcessor: EventProcessor;
-    private samples: Record<string, AudioBuffer | null> = {};
     private ctx: AudioContext | null = null;
-    private bus: AudioNode | null = null;
-    // reverb: ConvolverNode | null = null;
+    private bus: MixBus | null = null;
 
     constructor(
         eventProcessor: EventProcessor,
@@ -105,7 +164,7 @@ class Sampler {
 
     initAudio(ctx: AudioContext) {
         this.ctx = ctx;
-        this.bus = new MixBus(this.ctx).input;
+        this.bus = new MixBus(this.ctx);
     }
 
     init() {
@@ -117,6 +176,7 @@ class Sampler {
         if (!sample) return false;
         this.samples[slot] = sample;
         this.eventProcessor.subscribe(slot, this.handleEvent.bind(this));
+        this.eventProcessor.dispatchEvent(`sample-loaded-${slot}`);
         return true;
     }
 
@@ -132,23 +192,32 @@ class Sampler {
         if (!this.ctx) {
             throw new Error('Audio context not initialized');
         }
-        const source = this.ctx.createBufferSource();
-        source.buffer = this.samples[slot];
-        if (!source.buffer) {
-            throw new Error(`Sample ${name} not found in sampler`);
-        }
-        source.connect(this.bus!);
-        source.start(this.ctx.currentTime, 0, source.buffer.duration);
-        source.onended = () => {
-            source.disconnect();
-        }
+        const source = this.samples[slot];
+        if (!source) return;
+        source.output.connect(this.bus!.input);
+        source.play();
     }
-    
+
     get context() {
         return this.ctx;
     }
+
+    destroy() {
+        this.ctx?.close();
+        this.bus?.destroy();
+    }
 }
 
+export const keyMap = {
+    0: "a",
+    1: "s",
+    2: "d",
+    3: "w",
+    4: "j",
+    5: "k",
+    6: "l",
+    7: "i",
+} as Record<number, string>;
 export const library = new VTSampleLibrary();
 export const eventProcessor = new EventProcessor();
 export const sampler = new Sampler(eventProcessor, library);

@@ -1,13 +1,15 @@
 <script lang="ts">
   import Sampler from "./lib/components/Sampler.svelte";
-  let init = false;
+  import * as wasm from "wasm-int";
+  wasm.greet();
+  let isInitialized = false;
 </script>
 
 <main>
-  {#if !init}
+  {#if !isInitialized}
     <button
       on:click={() => {
-        init = true;
+        isInitialized = true;
       }}>Let's go!</button
     >
   {:else}

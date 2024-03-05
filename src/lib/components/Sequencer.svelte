@@ -1,5 +1,5 @@
 <script lang="ts">
-    import { sampler, eventProcessor } from "../sampler";
+    import { sampler, eventProcessor, keyMap } from "../sampler";
     import Dragable from "./shared/Dragable.svelte";
 
     export let numBeats = 32;
@@ -14,11 +14,11 @@
     let handle0: HTMLElement | null = null;
     let handle1: HTMLElement | null = null;
     let anitHandle0: HTMLElement | null = null;
-    let handles: HTMLElement[] = [];
-    let antiHandles: HTMLElement[] = [];
+    let handles: (HTMLElement | null)[] = [];
+    let antiHandles: (HTMLElement | null)[] = [];
 
-    $: handles = [handle0, handle1].filter((h) => h !== null) as HTMLElement[];
-    $: antiHandles = [anitHandle0].filter((h) => h !== null) as HTMLElement[];
+    $: handles = [handle0, handle1];
+    $: antiHandles = [anitHandle0];
 
     $: onChangeTempo(bpm);
 
@@ -99,7 +99,7 @@
         <div class="slots-container">
             <div class="slot-labels" bind:this={handle1}>
                 {#each {length: numSlots} as _, i}
-                    <span>{i}</span>
+                    <span>({keyMap[i]})</span>
                 {/each}
             </div>
             <div class="slots">
