@@ -60,12 +60,7 @@ class MixBus {
 
     constructor(audioContext: AudioContext) {
         this.gainNode = audioContext.createGain();
-        // const reverb = new AdvancedReverb(audioContext);
-        // reverb.decayTime = 0.2;
-        // this.gainNode.connect(reverb.input);
         this.compressor = this.createCompressor(audioContext);
-        // reverb.connect(this.compressor);
-        // this.gainNode.connect(this.compressor);
         audioContext.audioWorklet.addModule('/customProcessor.js')
             .then(() => {
                 this.customWorklet = new CustomAudioNode(audioContext, 'custom-processor');
