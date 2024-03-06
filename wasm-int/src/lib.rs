@@ -28,24 +28,26 @@ macro_rules! log {
 }
 
 #[wasm_bindgen]
-pub struct Delay {
-    queue: Vec<f64>,
+pub struct MyPlugin {
+    gain: f32,
+    // queue: Vec<f32>,
 }
 
 #[wasm_bindgen]
-impl Delay {
+impl MyPlugin {
     #[wasm_bindgen(constructor)]
-    pub fn new(delay: f64) -> Delay {
+    pub fn new(new_gain: f32) -> MyPlugin {
         utils::set_panic_hook();
-        let q = vec![0.0; delay as usize];
-        log!("Delay created with delay: {}", delay);
-        Delay { queue: q }
+        // let q = vec![0.0; delay as usize];
+        // log!("Delay created with delay: {}", delay);
+        MyPlugin { gain: new_gain }
     }
 
-    #[wasm_bindgen]
-    pub fn process(&mut self, input: f64) -> f64 {
-        let output = self.queue.remove(0);
-        self.queue.push(input);
-        output
+    pub fn process(&self, input: &[f32], output: &mut [f32]) {
+        for (i, sample) in input.iter().enumerate() {
+            // let delayed_output = self.queue.remove(0);
+            // self.queue.push(sample.clone());
+            output[i] = self.gain * sample;
+        }
     }
 }

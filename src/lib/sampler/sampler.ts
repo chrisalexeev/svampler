@@ -70,11 +70,10 @@ class MixBus {
         this.compressor.release.setValueAtTime(0.01, audioContext.currentTime);
         // reverb.connect(this.compressor);
         // this.gainNode.connect(this.compressor);
-        audioContext.audioWorklet.addModule('/customProcessor.umd.js').then(() => {
-            this.customWorklet = new CustomAudioNode(audioContext, 48000, {
-                numberOfInputs: 1,
-                numberOfOutputs: 1,
-                outputChannelCount: [1],
+        audioContext.audioWorklet.addModule('/customProcessor.js').then(() => {
+            this.customWorklet = new CustomAudioNode(audioContext, 'custom-processor');
+            fetch('/wasm_int_bg.wasm').then((response) => response.arrayBuffer()).then((wasmBytes) => {
+                this.customWorklet!.init(wasmBytes);
             });
             const splitterNode = audioContext.createChannelSplitter(2);
             const mergerNode = audioContext.createChannelMerger(2);
@@ -147,7 +146,7 @@ class Sample {
 class Sampler {
     library: VTSampleLibrary;
     samples: Record<string, Sample | null> = {};
-    
+
     readonly maxSamples = 8;
 
     private eventProcessor: EventProcessor;

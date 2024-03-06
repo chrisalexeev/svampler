@@ -1,15 +1,32 @@
-import { Delay } from "wasm-int";
-
 export class CustomAudioNode extends AudioWorkletNode {
-    // delay: Delay;
-    constructor(context: AudioContext, delaySize: number, options: AudioWorkletNodeOptions) {
-        super(context, 'custom-processor', options);
-        // debugger;
-        // this.delay = new Delay(delaySize);
-        // this.port.onmessage = (event) => {
-        //     const processed = this.delay.process(event.data);
-        //     this.port.postMessage({processed});
-        // }
-        // // this.port.postMessage({delay: this.delay});
+    /**
+     * Initialize the Audio processor by sending the fetched WebAssembly module to
+     * the processor worklet.
+     *
+     * @param {ArrayBuffer} wasmBytes Sequence of bytes representing the entire
+     * WASM module that will handle pitch detection.
+     */
+    init = (wasmBytes: ArrayBuffer) => {
+      this.port.onmessage = (event) => this.onmessage(event.data);
+  
+      this.port.postMessage({
+        type: "send-wasm-module",
+        wasmBytes,
+      });
     }
-}
+  
+    onprocessorerror = (err: any) => {
+        console.log(
+            `An error from AudioWorkletProcessor.process() occurred: ${err}`
+        );
+    };
+  
+    onmessage = (event: any) => {
+      if (event.type === 'wasm-module-loaded') {
+        this.port.postMessage({
+          type: "init-plugin",
+          gain: 10,
+        });
+      }
+    }
+  }

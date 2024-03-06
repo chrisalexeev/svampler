@@ -1,7 +1,7 @@
 <script lang="ts">
   import Sampler from "./lib/components/Sampler.svelte";
-  import * as wasm from "wasm-int";
-  wasm.greet();
+  // import * as wasm from "wasm-int";
+  // wasm.greet();
   let isInitialized = false;
 </script>
 

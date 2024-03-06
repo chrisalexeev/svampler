@@ -17,6 +17,13 @@
   <sub>Built with 🦀🕸 by <a href="https://rustwasm.github.io/">The Rust and WebAssembly Working Group</a></sub>
 </div>
 
+## Build
+
+```shell
+wasm-pack build --target web
+```
+Then copy wasm_int.js and wasm_int_bg.wasm to `/public`
+
 ## About
 
 [**📚 Read this template tutorial! 📚**][template-docs]
