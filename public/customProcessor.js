@@ -25,12 +25,14 @@ class CustomProcessor extends AudioWorkletProcessor {
     process(inputs, outputs, parameters) {
 
         if (this.plugin) {
-            const input = inputs[0][0];
-            const output = outputs[0][0];
-            if (!input || !output) {
-                return true;
+            for (let channel = 0; channel < inputs[0].length; ++channel) {
+                const input = inputs[0][channel];
+                const output = outputs[0][channel];
+                if (!input || !output) {
+                    continue;
+                }
+                this.plugin.process(input, output);
             }
-            this.plugin.process(input, output);
         }
 
         return true;

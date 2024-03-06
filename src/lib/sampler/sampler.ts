@@ -63,32 +63,32 @@ class MixBus {
         // const reverb = new AdvancedReverb(audioContext);
         // reverb.decayTime = 0.2;
         // this.gainNode.connect(reverb.input);
-        this.compressor = audioContext.createDynamicsCompressor();
-        this.compressor.threshold.setValueAtTime(-3, audioContext.currentTime);
-        this.compressor.ratio.setValueAtTime(20, audioContext.currentTime);
-        this.compressor.attack.setValueAtTime(0.01, audioContext.currentTime);
-        this.compressor.release.setValueAtTime(0.01, audioContext.currentTime);
+        this.compressor = this.createCompressor(audioContext);
         // reverb.connect(this.compressor);
         // this.gainNode.connect(this.compressor);
-        audioContext.audioWorklet.addModule('/customProcessor.js').then(() => {
-            this.customWorklet = new CustomAudioNode(audioContext, 'custom-processor');
-            fetch('/wasm_int_bg.wasm').then((response) => response.arrayBuffer()).then((wasmBytes) => {
-                this.customWorklet!.init(wasmBytes);
-            });
-            const splitterNode = audioContext.createChannelSplitter(2);
-            const mergerNode = audioContext.createChannelMerger(2);
-            this.gainNode.connect(splitterNode);
-            splitterNode.connect(this.customWorklet, 0, 0);
-            splitterNode.connect(this.compressor, 0, 0);
-            this.customWorklet.connect(mergerNode, 0, 0);
-            this.compressor.connect(mergerNode, 0, 1);
-            mergerNode.connect(audioContext.destination);
-            // this.compressor.connect(audioContext.destination);
-        })
+        audioContext.audioWorklet.addModule('/customProcessor.js')
+            .then(() => {
+                this.customWorklet = new CustomAudioNode(audioContext, 'custom-processor');
+                fetch('/wasm_int_bg.wasm').then((response) => response.arrayBuffer()).then((wasmBytes) => {
+                    this.customWorklet!.init(wasmBytes);
+                });
+                this.gainNode.connect(this.customWorklet);
+                this.gainNode.connect(this.compressor);
+                this.customWorklet.connect(this.compressor);
+                this.compressor.connect(audioContext.destination);
+            })
             .catch((e) => {
                 console.error(e);
                 this.compressor.connect(audioContext.destination);
             });
+    }
+    private createCompressor(audioContext: AudioContext) {
+        const compressor = audioContext.createDynamicsCompressor();
+        compressor.threshold.setValueAtTime(-3, audioContext.currentTime);
+        compressor.ratio.setValueAtTime(20, audioContext.currentTime);
+        compressor.attack.setValueAtTime(0.01, audioContext.currentTime);
+        compressor.release.setValueAtTime(0.01, audioContext.currentTime);
+        return compressor;
     }
     get input() {
         return this.gainNode;
