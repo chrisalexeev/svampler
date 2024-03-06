@@ -1,8 +1,13 @@
 <script lang="ts">
     import { beforeUpdate, onDestroy, onMount } from "svelte";
 
-    export let handles: HTMLElement[] = [];
-    export let antiHandles: HTMLElement[] = [];
+    export let handles: (HTMLElement | null)[] = [];
+    export let antiHandles: (HTMLElement | null)[] = [];
+    let handles_: HTMLElement[] = [];
+    let antiHandles_: HTMLElement[] = [];
+    $: handles_ = handles.filter((h) => !!h) as HTMLElement[];
+    $: antiHandles_ = antiHandles.filter((h) => !!h) as HTMLElement[];
+
     let handleHasEventListeners = false;
     let antiHandleHasEventListeners = false;
     let container: HTMLElement | null = null;
@@ -16,7 +21,7 @@
     let isMouseOverAntiHandle = false;
     let draggable = true;
     $: draggable =
-        !isMouseOverAntiHandle && (!handles.length || isMouseOverHandle);
+        !isMouseOverAntiHandle && (!handles_.length || isMouseOverHandle);
 
     function handleHandlerEnter() {
         isMouseOverHandle = true;
@@ -68,8 +73,8 @@
         mouseY = e.touches[0].clientY;
     }
     function addAntiHandleListeners() {
-        if (!antiHandles.length) return;
-        antiHandles.forEach((handle) => {
+        if (!antiHandles_.length) return;
+        antiHandles_.forEach((handle) => {
             handle.addEventListener("mouseover", handleAntiHandlerEnter);
             handle.addEventListener("mouseleave", handleAntiHandlerExit);
             handle.style.cursor = "pointer";
@@ -77,8 +82,8 @@
         antiHandleHasEventListeners = true;
     }
     function removeAntiHandleListeners() {
-        if (!antiHandles.length) return;
-        antiHandles.forEach((handle) => {
+        if (!antiHandles_.length) return;
+        antiHandles_.forEach((handle) => {
             handle.removeEventListener("mouseover", handleAntiHandlerEnter);
             handle.removeEventListener("mouseleave", handleAntiHandlerExit);
             handle.style.cursor = "pointer";
@@ -86,8 +91,8 @@
         antiHandleHasEventListeners = false;
     }
     function addHandleListeners() {
-        if (!handles.length) return;
-        handles.forEach((handle) => {
+        if (!handles_.length) return;
+        handles_.forEach((handle) => {
             handle.addEventListener("mouseover", handleHandlerEnter);
             handle.addEventListener("mouseleave", handleHandlerExit);
             handle.style.cursor = "grab";
@@ -96,8 +101,8 @@
         handleHasEventListeners = true;
     }
     function removeHandleListeners() {
-        if (!handles.length) return;
-        handles.forEach((handle) => {
+        if (!handles_.length) return;
+        handles_.forEach((handle) => {
             handle.removeEventListener("mouseover", handleHandlerEnter);
             handle.removeEventListener("mouseleave", handleHandlerExit);
             handle.style.cursor = "auto";
@@ -109,8 +114,8 @@
     onMount(() => {
         window.addEventListener("mousemove", handleMouseMove);
         window.addEventListener("touchmove", handleTouchMove);
-        if (handles.length) addHandleListeners();
-        if (antiHandles.length) addAntiHandleListeners();
+        if (handles_.length) addHandleListeners();
+        if (antiHandles_.length) addAntiHandleListeners();
     });
 
     beforeUpdate(() => {
@@ -128,7 +133,7 @@
         window.removeEventListener("mousemove", handleMouseMove);
         window.removeEventListener("touchmove", handleTouchMove);
         if (handleHasEventListeners) removeHandleListeners();
-        if (antiHandles.length) removeAntiHandleListeners();
+        if (antiHandles_.length) removeAntiHandleListeners();
     });
 </script>
 

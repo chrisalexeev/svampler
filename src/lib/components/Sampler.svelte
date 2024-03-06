@@ -5,6 +5,7 @@
     import Library from "./Library.svelte";
     import Sequencer from "./Sequencer.svelte";
     import Pads from "./Pads.svelte";
+    import Mixer from "./Mixer.svelte";
 
     onMount(() => {
         sampler.init();
@@ -23,6 +24,9 @@
     <div id="library-container">
         <Library />
     </div>
+    <div id="mixer-container">
+        <Mixer />
+    </div>
 </div>
 
 <style>
@@ -33,8 +37,8 @@
         gap: 20px;
         grid-template-columns: repeat(2, fit-content(50%));
         grid-template-areas:
-            "library pads"
-            "library sequencer";
+            "library pads mixer"
+            "library sequencer sequencer";
     }
     #pads-container {
         grid-area: pads;
@@ -46,5 +50,8 @@
         grid-area: library;
         height: 100%;
         overflow-y: auto;
+    }
+    #mixer-container {
+        grid-area: mixer;
     }
 </style>

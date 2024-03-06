@@ -1,1 +1,1 @@
-export { sampler, library, eventProcessor } from './sampler';
+export { sampler, library, eventProcessor, keyMap } from './sampler';
