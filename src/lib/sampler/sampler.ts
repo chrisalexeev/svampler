@@ -17,6 +17,7 @@ export class EventProcessor {
 }
 
 class VTSampleLibrary {
+    urlPrefix: string | undefined;
     samples: Record<string, Sample | null> = {};
 
     constructor() {
@@ -24,7 +25,11 @@ class VTSampleLibrary {
         this.loadSampleList();
     }
     async loadSampleList() {
-        const samples: string[] = (await (await fetch('/environment.json')).json()).samples;
+        const environment = await (await fetch('/environment.json')).json();
+        const samples: string[] = environment.samples;
+        if (environment.urlPrefix) {
+            this.urlPrefix = environment.urlPrefix;
+        }
         for (const sample of samples) {
             this.samples[sample] = null;
         }
@@ -34,7 +39,7 @@ class VTSampleLibrary {
             return this.samples[url];
         }
         try {
-            const sample = await (new Sample(ctx).load(`/samples/${url}`));
+            const sample = await (new Sample(ctx).load(`${this.urlPrefix ?? ""}/samples/${url}`));
             this.samples[url] = sample;
             return sample;
         } catch (e) {
