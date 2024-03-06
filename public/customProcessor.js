@@ -12,15 +12,15 @@ class CustomProcessor extends AudioWorkletProcessor {
 
     onmessage(event) {
         if (event.data.type === "send-wasm-module") {
-          init(WebAssembly.compile(event.data.wasmBytes)).then(() => {
-            this.port.postMessage({ type: 'wasm-module-loaded' });
-          });
+            init(WebAssembly.compile(event.data.wasmBytes)).then(() => {
+                this.port.postMessage({ type: 'wasm-module-loaded' });
+            });
         } else if (event.data.type === 'init-plugin') {
-          const { gain } = event.data;
-          this.plugin = new MyPlugin(gain);
-          console.log('Plugin initialized');
+            const { gain } = event.data;
+            this.plugin = new MyPlugin(gain);
+            console.log('Plugin initialized');
         }
-      };
+    };
 
     process(inputs, outputs, parameters) {
 
