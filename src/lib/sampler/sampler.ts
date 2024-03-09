@@ -39,7 +39,8 @@ class VTSampleLibrary {
             return this.samples[url];
         }
         try {
-            const sample = await (new Sample(ctx).load(`${this.urlPrefix ?? ""}/samples/${url}`));
+            const isProd = import.meta.env.PROD;
+            const sample = await (new Sample(ctx).load(`${(isProd && this.urlPrefix) || ""}/samples/${url}`));
             this.samples[url] = sample;
             return sample;
         } catch (e) {
