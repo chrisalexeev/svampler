@@ -6,9 +6,14 @@
     import Sequencer from "./Sequencer.svelte";
     import Pads from "./Pads.svelte";
     import Mixer from "./Mixer.svelte";
+    import Eight08 from "./Eight08.svelte";
+    import { synth } from "../sampler/sampler";
+
+    const ctx = new AudioContext();
 
     onMount(() => {
-        sampler.init();
+        sampler.init(ctx);
+        synth.init(ctx);
     });
 </script>
 
@@ -27,6 +32,9 @@
     <div id="mixer-container">
         <Mixer />
     </div>
+    <div id="eight08-container">
+        <Eight08 />
+    </div>
 </div>
 
 <style>
@@ -37,8 +45,8 @@
         gap: 20px;
         grid-template-columns: repeat(2, fit-content(50%));
         grid-template-areas:
-            "library pads mixer"
-            "library sequencer sequencer";
+            "library pads mixer eight08"
+            "library sequencer sequencer sequencer";
     }
     #pads-container {
         grid-area: pads;
@@ -53,5 +61,8 @@
     }
     #mixer-container {
         grid-area: mixer;
+    }
+    #eight08-container {
+        grid-area: eight08;
     }
 </style>
