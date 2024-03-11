@@ -1,5 +1,5 @@
 <script lang="ts">
-    import { sampler, keyMap } from "../sampler";
+    import { sampler, keyMap } from "../lab";
     import MixerSlot from "./MixerSlot.svelte";
     import Dragable from "./shared/Dragable.svelte";
 

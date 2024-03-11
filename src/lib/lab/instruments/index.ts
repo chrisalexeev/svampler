@@ -1,0 +1,1 @@
+export { MonoInstrument as Instrument } from './instrument';

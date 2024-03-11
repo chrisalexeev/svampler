@@ -82,21 +82,6 @@ class MixBus {
     }
 }
 
-class Synth {
-    context: AudioContext | null = null;
-
-    init(context: AudioContext) {
-        this.context = context;
-    }
-
-    play() {
-        const osc = this.context!.createOscillator();
-        osc.connect(this.context!.destination);
-        osc.start();
-        osc.stop(this.context!.currentTime + 0.5);
-    }
-}
-
 class Sample {
     context: AudioContext;
     sampleBuffer: AudioBuffer | null;
@@ -217,4 +202,3 @@ export const keyMap = {
 export const library = new VTSampleLibrary();
 export const eventProcessor = new EventProcessor();
 export const sampler = new Sampler(eventProcessor, library);
-export const synth = new Synth();

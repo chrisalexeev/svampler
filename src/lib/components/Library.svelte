@@ -1,5 +1,5 @@
 <script lang="ts">
-    import { sampler, library } from "../sampler";
+    import { sampler, library } from "../lab";
 
     function handleDragStart(e: DragEvent) {
         e.dataTransfer?.setData(
