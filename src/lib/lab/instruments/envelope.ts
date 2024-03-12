@@ -41,10 +41,11 @@ export class AmpEnvelope {
 
     triggerRelease(when?: number) {
         const tTime = when ?? this.node.context.currentTime;
-        this.node.gain.cancelAndHoldAtTime(tTime);
+        this.node.gain.cancelScheduledValues(tTime);
+        this.node.gain.setValueAtTime(this.node.gain.value, tTime);
         this.node.gain.linearRampToValueAtTime(0, tTime + this.release);
     }
-    
+
     abort(when?: number) {
         const tTime = when ?? this.node.context.currentTime;
         this.node.gain.cancelAndHoldAtTime(tTime);

@@ -1,20 +1,4 @@
-export class EventProcessor {
-    private subscriberMap: Record<string | number, ((topic: string | number) => void)[]> = {};
-
-    dispatchEvent(topic: string | number) {
-        this.subscriberMap[topic!] && this.subscriberMap[topic!]?.forEach((callback) => callback(topic));
-    }
-
-    subscribe(topic: string | number, callback: (topic: string | number) => void) {
-        if (!this.subscriberMap[topic]) {
-            this.subscriberMap[topic] = [];
-        }
-        if (this.subscriberMap[topic].map((cb) => cb.name).includes(callback.name)) {
-            return;
-        }
-        this.subscriberMap[topic].push(callback);
-    }
-}
+import { EventProcessor } from "./eventProcessor";
 
 class VTSampleLibrary {
     urlPrefix: string | undefined;

@@ -1,16 +1,37 @@
 <script lang="ts">
     import { onMount } from "svelte";
-    import { mixBus } from "../lab";
+    import { mixBus, eventProcessor } from "../lab";
+    import { keyMap } from "../lab/instruments";
     import Dragable from "./shared/Dragable.svelte";
     import { Eight08 as Eight08Inst } from "../lab/instruments/eight08";
     import Eight08 from "./instruments/Eight08.svelte";
 
     const ctx = new AudioContext();
     const eight08 = new Eight08Inst(ctx);
+    let currentKey: string | null = null;
+
+    function handleKeydown(e: KeyboardEvent) {
+        if (keyMap[e.key] === undefined) return;
+        if (currentKey === e.key) return;
+        currentKey = e.key;
+        eventProcessor.dispatchEvent("noteDown", keyMap[e.key]);
+    }
+
+    function handleKeyup(e: KeyboardEvent) {
+        if (keyMap[e.key] === undefined) return;
+        currentKey = null;
+        eventProcessor.dispatchEvent("noteUp", keyMap[e.key]);
+    }
 
     onMount(() => {
         mixBus.init(ctx);
         mixBus.connectToTrack(eight08, 0);
+        window.addEventListener("keydown", handleKeydown);
+        window.addEventListener("keyup", handleKeyup);
+        return () => {
+            window.removeEventListener("keydown", handleKeydown);
+            window.removeEventListener("keyup", handleKeyup);
+        };
     });
 </script>
 
