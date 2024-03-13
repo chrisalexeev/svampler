@@ -1,31 +1,36 @@
 <script lang="ts">
     import { onMount } from "svelte";
-    import { sampler } from "../sampler";
+    import { mixBus, library, Sampler, eventProcessor } from "../lab";
     import Dragable from "./shared/Dragable.svelte";
     import Library from "./Library.svelte";
     import Sequencer from "./Sequencer.svelte";
     import Pads from "./Pads.svelte";
     import Mixer from "./Mixer.svelte";
 
+    const ctx = new AudioContext();
+    const sampler = new Sampler(eventProcessor, library);
+
     onMount(() => {
-        sampler.init();
+        sampler.init(ctx);
+        mixBus.init(ctx);
+        sampler.connect(mixBus.tracks[0].input);
     });
 </script>
 
 <div id="sampler">
     <div id="pads-container">
         <Dragable>
-            <Pads />
+            <Pads {sampler} />
         </Dragable>
     </div>
     <div id="sequencer-container">
-        <Sequencer />
+        <Sequencer {sampler} />
     </div>
     <div id="library-container">
-        <Library />
+        <Library {sampler} />
     </div>
     <div id="mixer-container">
-        <Mixer />
+        <Mixer {sampler} />
     </div>
 </div>
 
@@ -37,8 +42,8 @@
         gap: 20px;
         grid-template-columns: repeat(2, fit-content(50%));
         grid-template-areas:
-            "library pads mixer"
-            "library sequencer sequencer";
+            "library pads mixer eight08"
+            "library sequencer sequencer sequencer";
     }
     #pads-container {
         grid-area: pads;
@@ -53,5 +58,8 @@
     }
     #mixer-container {
         grid-area: mixer;
+    }
+    #eight08-container {
+        grid-area: eight08;
     }
 </style>

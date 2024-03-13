@@ -1,20 +1,4 @@
-export class EventProcessor {
-    private subscriberMap: Record<string | number, ((topic: string | number) => void)[]> = {};
-
-    dispatchEvent(topic: string | number) {
-        this.subscriberMap[topic!] && this.subscriberMap[topic!]?.forEach((callback) => callback(topic));
-    }
-
-    subscribe(topic: string | number, callback: (topic: string | number) => void) {
-        if (!this.subscriberMap[topic]) {
-            this.subscriberMap[topic] = [];
-        }
-        if (this.subscriberMap[topic].map((cb) => cb.name).includes(callback.name)) {
-            return;
-        }
-        this.subscriberMap[topic].push(callback);
-    }
-}
+import { EventProcessor } from "./eventProcessor";
 
 class VTSampleLibrary {
     urlPrefix: string | undefined;
@@ -39,7 +23,8 @@ class VTSampleLibrary {
             return this.samples[url];
         }
         try {
-            const sample = await (new Sample(ctx).load(`${this.urlPrefix ?? ""}/samples/${url}`));
+            const isProd = import.meta.env.PROD;
+            const sample = await (new Sample(ctx).load(`${(isProd && this.urlPrefix) || ""}/samples/${url}`));
             this.samples[url] = sample;
             return sample;
         } catch (e) {
@@ -53,31 +38,6 @@ class VTSampleLibrary {
         if (!sample.sampleBuffer) return;
         sample.output.connect(ctx.destination);
         sample.play();
-    }
-}
-
-class MixBus {
-    private compressor: DynamicsCompressorNode;
-    private gainNode: GainNode;
-
-    constructor(audioContext: AudioContext) {
-        this.gainNode = audioContext.createGain();
-        this.compressor = this.createCompressor(audioContext);
-
-        this.gainNode.connect(this.compressor);
-        this.compressor.connect(audioContext.destination);
-
-    }
-    private createCompressor(audioContext: AudioContext) {
-        const compressor = audioContext.createDynamicsCompressor();
-        compressor.threshold.setValueAtTime(-3, audioContext.currentTime);
-        compressor.ratio.setValueAtTime(20, audioContext.currentTime);
-        compressor.attack.setValueAtTime(0.01, audioContext.currentTime);
-        compressor.release.setValueAtTime(0.01, audioContext.currentTime);
-        return compressor;
-    }
-    get input() {
-        return this.gainNode;
     }
 }
 
@@ -125,15 +85,15 @@ class Sample {
     }
 }
 
-class Sampler {
+export class Sampler {
     library: VTSampleLibrary;
     samples: Record<string, Sample | null> = {};
+    output!: GainNode;
 
     readonly maxSamples = 8;
 
     private eventProcessor: EventProcessor;
     private ctx: AudioContext | null = null;
-    private bus: MixBus | null = null;
 
     constructor(
         eventProcessor: EventProcessor,
@@ -145,11 +105,11 @@ class Sampler {
 
     initAudio(ctx: AudioContext) {
         this.ctx = ctx;
-        this.bus = new MixBus(this.ctx);
+        this.output = ctx.createGain();
     }
 
-    init() {
-        this.initAudio(new AudioContext());
+    init(ctx?: AudioContext) {
+        this.initAudio(ctx ?? new AudioContext());
     }
 
     async loadSample(slot: number, url: string) {
@@ -175,7 +135,7 @@ class Sampler {
         }
         const source = this.samples[slot];
         if (!source) return;
-        source.output.connect(this.bus!.input);
+        source.output.connect(this.output);
         source.play();
     }
 
@@ -185,6 +145,10 @@ class Sampler {
 
     close() {
         this.ctx?.close();
+    }
+
+    connect(destination: AudioNode) {
+        this.output.connect(destination);
     }
 }
 
@@ -199,5 +163,3 @@ export const keyMap = {
     7: "i",
 } as Record<number, string>;
 export const library = new VTSampleLibrary();
-export const eventProcessor = new EventProcessor();
-export const sampler = new Sampler(eventProcessor, library);

@@ -1,8 +1,9 @@
 <script lang="ts">
-    import { sampler, eventProcessor, keyMap } from "../sampler";
+    import { Sampler, eventProcessor, keyMap } from "../lab";
     import Dragable from "./shared/Dragable.svelte";
 
     export let numBeats = 32;
+    export let sampler: Sampler;
     const numSlots = sampler.maxSamples;
 
     let bpm = 120;

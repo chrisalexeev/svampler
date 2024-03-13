@@ -1,4 +1,8 @@
 <script lang="ts">
+    /**
+     * There's probably a better way to do 
+     * this whole component but ¯\_(ツ)_/¯
+    */
     import { beforeUpdate, onDestroy, onMount } from "svelte";
 
     export let handles: (HTMLElement | null)[] = [];

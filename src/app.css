@@ -5,4 +5,5 @@
 html, body, #app {
   height: 100%;
   font-family: 'Kodo Mono', monospace;
+  background-color: hsl(0, 0%, 10%);
 }

@@ -1,7 +1,8 @@
 <script lang="ts">
-    import { sampler, keyMap } from "../sampler";
+    import { Sampler, keyMap } from "../lab";
     import MixerSlot from "./MixerSlot.svelte";
     import Dragable from "./shared/Dragable.svelte";
+    export let sampler: Sampler;
 
     let handle: HTMLDivElement;
     let antiHandles = new Array(sampler.maxSamples).fill(null);
@@ -13,7 +14,7 @@
             <!-- Svelte is fxcking awesome -->
             <div class="mixer-slot">
                 <div bind:this={antiHandles[i]}>
-                    <MixerSlot slot={i} />
+                    <MixerSlot {sampler} slot={i} />
                 </div>
                 <span class="no-highlight">({keyMap[i]})</span>
             </div>

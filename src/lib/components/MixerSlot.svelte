@@ -1,6 +1,7 @@
 <script lang="ts">
-    import { sampler, eventProcessor } from "../sampler";
+    import { eventProcessor, Sampler } from "../lab";
     export let slot: number;
+    export let sampler: Sampler;
 
     let sample = sampler.samples[slot];
     let val = 1;
