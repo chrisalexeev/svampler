@@ -1,9 +1,10 @@
 <script lang="ts">
     import { onDestroy, onMount } from "svelte";
-    import { eventProcessor, sampler } from "../lab";
+    import { eventProcessor, Sampler } from "../lab";
     export let name: string;
     export let slot: number;
     export let key: string;
+    export let sampler: Sampler;
     let drop: HTMLButtonElement;
     let className = "drum-pad";
     $: className = pressed ? "drum-pad active" : "drum-pad";

@@ -1,5 +1,7 @@
 <script lang="ts">
+    import type { Sampler } from "../lab";
     import Pad from "./Pad.svelte";
+    export let sampler: Sampler;
     const left = {
         "w": 3,
         "a": 0,
@@ -19,14 +21,14 @@
     <div class="pad-section left">
         {#each Object.keys(left) as key}
             <div>
-                <Pad name={""} {key} slot={left[key]} />
+                <Pad name={""} {key} {sampler} slot={left[key]} />
             </div>
         {/each}
     </div>
     <div class="pad-section right">
         {#each Object.keys(right) as key}
             <div>
-                <Pad name={""} {key} slot={right[key]} />
+                <Pad name={""} {key} {sampler} slot={right[key]} />
             </div>
         {/each}
     </div>

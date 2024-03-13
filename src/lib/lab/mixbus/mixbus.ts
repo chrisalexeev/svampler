@@ -5,7 +5,7 @@ class MixBus {
     private audioContext!: AudioContext;
     private compressor!: DynamicsCompressorNode;
     private gainNode!: GainNode;
-    private _tracks = new Array<Track | null>(8).fill(null);
+    private _tracks = new Array<Track>(8);
 
     init(context: AudioContext) {
         this.audioContext = context;

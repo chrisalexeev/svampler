@@ -1,7 +1,7 @@
 <script lang="ts">
     import { onMount } from "svelte";
     import Sampler from "./Sampler.svelte";
-    import Lab from "./Lab.svelte";
+    // import Lab from "./Lab.svelte";
     let init = false;
     let isMobile = isMobileDevice();
   
@@ -59,7 +59,7 @@
         </p>
       {/if}
     {:else}
-      <Lab />
+      <Sampler />
     {/if}
   </main>
   

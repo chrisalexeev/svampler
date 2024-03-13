@@ -41,31 +41,6 @@ class VTSampleLibrary {
     }
 }
 
-class MixBus {
-    private compressor: DynamicsCompressorNode;
-    private gainNode: GainNode;
-
-    constructor(audioContext: AudioContext) {
-        this.gainNode = audioContext.createGain();
-        this.compressor = this.createCompressor(audioContext);
-
-        this.gainNode.connect(this.compressor);
-        this.compressor.connect(audioContext.destination);
-
-    }
-    private createCompressor(audioContext: AudioContext) {
-        const compressor = audioContext.createDynamicsCompressor();
-        compressor.threshold.setValueAtTime(-3, audioContext.currentTime);
-        compressor.ratio.setValueAtTime(20, audioContext.currentTime);
-        compressor.attack.setValueAtTime(0.01, audioContext.currentTime);
-        compressor.release.setValueAtTime(0.01, audioContext.currentTime);
-        return compressor;
-    }
-    get input() {
-        return this.gainNode;
-    }
-}
-
 class Sample {
     context: AudioContext;
     sampleBuffer: AudioBuffer | null;
@@ -110,15 +85,15 @@ class Sample {
     }
 }
 
-class Sampler {
+export class Sampler {
     library: VTSampleLibrary;
     samples: Record<string, Sample | null> = {};
+    output!: GainNode;
 
     readonly maxSamples = 8;
 
     private eventProcessor: EventProcessor;
     private ctx: AudioContext | null = null;
-    private bus: MixBus | null = null;
 
     constructor(
         eventProcessor: EventProcessor,
@@ -130,7 +105,7 @@ class Sampler {
 
     initAudio(ctx: AudioContext) {
         this.ctx = ctx;
-        this.bus = new MixBus(this.ctx);
+        this.output = ctx.createGain();
     }
 
     init(ctx?: AudioContext) {
@@ -160,7 +135,7 @@ class Sampler {
         }
         const source = this.samples[slot];
         if (!source) return;
-        source.output.connect(this.bus!.input);
+        source.output.connect(this.output);
         source.play();
     }
 
@@ -170,6 +145,10 @@ class Sampler {
 
     close() {
         this.ctx?.close();
+    }
+
+    connect(destination: AudioNode) {
+        this.output.connect(destination);
     }
 }
 
@@ -184,5 +163,3 @@ export const keyMap = {
     7: "i",
 } as Record<number, string>;
 export const library = new VTSampleLibrary();
-export const eventProcessor = new EventProcessor();
-export const sampler = new Sampler(eventProcessor, library);
