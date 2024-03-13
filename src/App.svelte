@@ -16,13 +16,3 @@
   </Route>
   <Route path="/"><Main /></Route>
 </Router>
-
-<style>
-  div {
-    height: 100%;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    flex-direction: column;
-  }
-</style>
