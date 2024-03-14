@@ -1,5 +1,5 @@
 <script lang="ts">
-    import type { Sampler } from "../lab";
+    import type { Sampler } from "../../../lab";
     import Pad from "./Pad.svelte";
     export let sampler: Sampler;
     const left = {

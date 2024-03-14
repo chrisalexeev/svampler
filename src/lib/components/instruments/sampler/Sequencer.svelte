@@ -1,6 +1,6 @@
 <script lang="ts">
-    import { Sampler, eventProcessor, keyMap } from "../lab";
-    import Dragable from "./shared/Dragable.svelte";
+    import { Sampler, eventProcessor, keyMap } from "$lib/lab";
+    import Dragable from "$lib/components/shared/Dragable.svelte";
 
     export let numBeats = 32;
     export let sampler: Sampler;

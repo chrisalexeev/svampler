@@ -1,7 +1,7 @@
 <script lang="ts">
     import { onMount } from "svelte";
-    import { mixBus, library, Sampler, eventProcessor } from "../lab";
-    import Dragable from "./shared/Dragable.svelte";
+    import { mixBus, library, Sampler, eventProcessor } from "$lab";
+    import Dragable from "$lib/components/shared/Dragable.svelte";
     import Library from "./Library.svelte";
     import Sequencer from "./Sequencer.svelte";
     import Pads from "./Pads.svelte";

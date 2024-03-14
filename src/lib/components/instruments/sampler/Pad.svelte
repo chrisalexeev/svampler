@@ -1,6 +1,6 @@
 <script lang="ts">
     import { onDestroy, onMount } from "svelte";
-    import { eventProcessor, Sampler } from "../lab";
+    import { eventProcessor, Sampler } from "../../../lab";
     export let name: string;
     export let slot: number;
     export let key: string;

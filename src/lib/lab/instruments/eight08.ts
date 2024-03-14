@@ -2,11 +2,16 @@ import { AmpEnvelope } from "./envelope";
 import { MonoInstrument } from "./instrument";
 import { midiToHz } from "./util";
 
-export class Eight08 extends MonoInstrument {
+export class MonoOsc extends MonoInstrument {
     osc!: OscillatorNode;
     timeout: number | undefined;
     envelope!: AmpEnvelope;
     currentNote: number | null = null;
+    _octave: number = 2;
+    _release: number = 0.1;
+    _slide: number = 0;
+    _noteQueue: number[] = [];
+    
     init() {
         this.envelope = new AmpEnvelope(this.ctx);
         this.envelope.attack = 0.001;
@@ -45,22 +50,41 @@ export class Eight08 extends MonoInstrument {
     }
     sendNoteOn(note: number, _velocity?: number | undefined, time?: number | undefined): void {
         if (this.currentNote === note) return;
-        // console.count('sendNoteOn')
+        this._noteQueue.push(note);
         const tTime = time ?? this.ctx.currentTime;
-        const frequency = midiToHz(note);
-        this.osc.frequency.exponentialRampToValueAtTime(frequency * 2, tTime + 0.01);
-        this.osc.frequency.exponentialRampToValueAtTime(frequency, tTime + 0.02);
-        this.currentNote ?? this.envelope.triggerAttack(time);
+        const frequency = midiToHz(note + (this._octave * 12));
+        if (this.currentNote === null) {
+            this.envelope.triggerAttack(time);
+            this.osc.frequency.exponentialRampToValueAtTime(frequency * 2, tTime + 0.01);
+            this.osc.frequency.exponentialRampToValueAtTime(frequency, tTime + 0.02);
+        } else {
+            this.osc.frequency.exponentialRampToValueAtTime(frequency, tTime + this._slide);
+        }
         this.currentNote = note;
     }
     sendNoteOff(note: number, time?: number): void {
-        if (this.currentNote === null || this.currentNote !== note) return;
+        if (this.currentNote === null) return;
+        this._noteQueue = this._noteQueue.filter(n => n !== note);
+        if (this._noteQueue.length > 0) {
+            this.sendNoteOn(this._noteQueue.pop()!, undefined, time);
+            return;
+        }
         this.currentNote = null;
-        // console.count('sendNoteOff')
         const tTime = time ?? this.ctx.currentTime;
         this.envelope.triggerRelease(tTime);
     }
-    setRelease(value: number) {
+    get octave() {
+        return this._octave;
+    }
+    set octave(value: number) {
+        if (value === undefined || value < 0 || value > 6) return;
+        this._octave = value;
+    }
+    set release(value: number) {
+        if (!this.envelope || value === undefined) return;
         this.envelope.release = value;
+    }
+    set slide(value: number) {
+        this._slide = value;
     }
 }

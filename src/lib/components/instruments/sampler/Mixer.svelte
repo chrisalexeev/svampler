@@ -1,7 +1,7 @@
 <script lang="ts">
-    import { Sampler, keyMap } from "../lab";
+    import { Sampler, keyMap } from "$lib/lab";
     import MixerSlot from "./MixerSlot.svelte";
-    import Dragable from "./shared/Dragable.svelte";
+    import Dragable from "$lib/components/shared/Dragable.svelte";
     export let sampler: Sampler;
 
     let handle: HTMLDivElement;

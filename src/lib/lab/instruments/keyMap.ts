@@ -17,4 +17,4 @@ export const keyMap = {
     "p": 15,
     ";": 16,
     "'": 17,
-} as Record<string, number>;
+} as Record<string, string | number>;

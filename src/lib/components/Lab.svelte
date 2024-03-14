@@ -3,42 +3,66 @@
     import { mixBus, eventProcessor } from "../lab";
     import { keyMap } from "../lab/instruments";
     import Dragable from "./shared/Dragable.svelte";
-    import { Eight08 as Eight08Inst } from "../lab/instruments/eight08";
-    import Eight08 from "./instruments/Eight08.svelte";
+    import { MonoOsc as Eight08Inst } from "../lab/instruments/eight08";
+    import Eight08 from "./instruments/MonoOsc.svelte";
+    import Mixer from "./mixBus/Mixer.svelte";
+    import Loading from "./Loading.svelte";
+    import { NOTE_DOWN, NOTE_UP, OCTAVE_CHANGE } from "$lib/constants/topics";
 
     const ctx = new AudioContext();
     const eight08 = new Eight08Inst(ctx);
-    let currentKey: string | null = null;
+    let initialized = false;
 
     function handleKeydown(e: KeyboardEvent) {
-        if (keyMap[e.key] === undefined) return;
-        if (currentKey === e.key) return;
-        currentKey = e.key;
-        eventProcessor.dispatchEvent("noteDown", keyMap[e.key]);
+        // TODO: refactor to use a map or smth later
+        switch (e.key) {
+            case "z":
+                eventProcessor.dispatchEvent(OCTAVE_CHANGE, -1);
+                break;
+            case "x":
+                eventProcessor.dispatchEvent(OCTAVE_CHANGE, 1);
+                break;
+            default:
+                if (keyMap[e.key] === undefined) return;
+                eventProcessor.dispatchEvent(NOTE_DOWN, keyMap[e.key]);
+        }
     }
 
     function handleKeyup(e: KeyboardEvent) {
-        if (keyMap[e.key] === undefined) return;
-        currentKey = null;
-        eventProcessor.dispatchEvent("noteUp", keyMap[e.key]);
+        // TODO: same here
+        switch (e.key) {
+            case "z":
+                break;
+            case "x":
+                break;
+            default:
+                if (keyMap[e.key] === undefined) return;
+                eventProcessor.dispatchEvent(NOTE_UP, keyMap[e.key]);
+        }
     }
 
     onMount(() => {
         mixBus.init(ctx);
         mixBus.connectToTrack(eight08, 0);
-        window.addEventListener("keydown", handleKeydown);
+        window.addEventListener("keypress", handleKeydown);
         window.addEventListener("keyup", handleKeyup);
+        initialized = true;
         return () => {
-            window.removeEventListener("keydown", handleKeydown);
+            window.removeEventListener("keypress", handleKeydown);
             window.removeEventListener("keyup", handleKeyup);
         };
     });
 </script>
 
 <div id="sampler">
-    <Dragable>
-        <Eight08 {eight08} />
-    </Dragable>
+    <!-- <Dragable> -->
+    {#if initialized}
+        <Mixer />
+        <Eight08 monoOsc={eight08} />
+    {:else}
+        <Loading />
+    {/if}
+    <!-- </Dragable> -->
 </div>
 
 <style>
