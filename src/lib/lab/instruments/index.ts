@@ -1,3 +1,3 @@
 export { MonoInstrument as Instrument } from './instrument';
-export { MonoOsc } from './eight08';
+export { MonoOsc } from './monoOsc';
 export { keyMap } from './keyMap';

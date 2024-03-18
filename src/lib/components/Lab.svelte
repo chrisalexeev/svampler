@@ -2,15 +2,18 @@
     import { onMount } from "svelte";
     import { mixBus, eventProcessor } from "../lab";
     import { keyMap } from "../lab/instruments";
-    import Dragable from "./shared/Dragable.svelte";
-    import { MonoOsc as Eight08Inst } from "../lab/instruments/eight08";
-    import Eight08 from "./instruments/MonoOsc.svelte";
+    // import Dragable from "./shared/Dragable.svelte";
+    import { MonoOsc as MonoOscInst } from "../lab/instruments/monoOsc";
+    import MonoOsc from "./instruments/MonoOsc.svelte";
     import Mixer from "./mixBus/Mixer.svelte";
     import Loading from "./Loading.svelte";
     import { NOTE_DOWN, NOTE_UP, OCTAVE_CHANGE } from "$lib/constants/topics";
+    import Arranger from "./arranger/arranger.svelte";
+    import { instrumentBank } from "$lib/lab/instruments/instrumentBank";
+    import Panel from "./shared/Panel.svelte";
+    import InstrumentBank from "./instruments/InstrumentBank.svelte";
 
     const ctx = new AudioContext();
-    const eight08 = new Eight08Inst(ctx);
     let initialized = false;
 
     function handleKeydown(e: KeyboardEvent) {
@@ -43,7 +46,7 @@
 
     onMount(() => {
         mixBus.init(ctx);
-        mixBus.connectToTrack(eight08, 0);
+        instrumentBank.init(ctx);
         window.addEventListener("keypress", handleKeydown);
         window.addEventListener("keyup", handleKeyup);
         initialized = true;
@@ -57,8 +60,15 @@
 <div id="sampler">
     <!-- <Dragable> -->
     {#if initialized}
-        <Mixer />
-        <Eight08 monoOsc={eight08} />
+        <Panel>
+            <Arranger />
+        </Panel>
+        <Panel>
+            <InstrumentBank />
+        </Panel>
+        <Panel>
+            <Mixer />
+        </Panel>
     {:else}
         <Loading />
     {/if}

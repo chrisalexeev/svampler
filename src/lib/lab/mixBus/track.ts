@@ -1,6 +1,9 @@
+import type { Instrument } from "../instruments";
+
 export class Track {
     context: any;
-    private _node: any;
+    private _node: GainNode;
+    private _connections: Instrument[] = [];
     gain: number;
     constructor(context: any, gain = 1) {
         this.context = context;
@@ -19,5 +22,16 @@ export class Track {
     }
     setGain(value: number) {
         this._node.gain.value = value;
+    }
+    isOpen() {
+        return this._connections.length === 0;
+    }
+    connectInstrument(instrument: Instrument) {
+        instrument.connect(this._node);
+        this._connections.push(instrument);
+    }
+    disconnectInstrument(instrument: Instrument) {
+        instrument.disconnect();
+        this._connections = this._connections.filter((conn) => conn.id !== instrument.id);
     }
 }

@@ -1,3 +1,4 @@
+import { globalControl } from "../globalControl";
 import { AmpEnvelope } from "./envelope";
 import { MonoInstrument } from "./instrument";
 import { midiToHz } from "./util";
@@ -10,13 +11,16 @@ export class MonoOsc extends MonoInstrument {
     _octave: number = 2;
     _release: number = 0.1;
     _slide: number = 0;
-    _noteQueue: number[] = [];
+    // _noteQueue: number[] = [];
+    // private _notes: { [key: number]: OscillatorNode } = {};
+    private _input!: GainNode;
     
     init() {
         this.envelope = new AmpEnvelope(this.ctx);
         this.envelope.attack = 0.001;
         const [effectsIn, effectsOut] = this.createEffects();
-        this.envelope.connect(effectsIn);
+        this._input = this.ctx.createGain();
+        this._input.connect(effectsIn);
         effectsOut.connect(this.output);
         this.osc = this.createSource();
     }
@@ -48,29 +52,35 @@ export class MonoOsc extends MonoInstrument {
         osc.start();
         return osc;
     }
-    sendNoteOn(note: number, _velocity?: number | undefined, time?: number | undefined): void {
+    private convertTime(time: number) {
+        return time * (60 * 4 / globalControl.bpm);
+    }
+    triggerNoteOn(note: number, _velocity?: number | undefined, time?: number | undefined): void {
         if (this.currentNote === note) return;
-        this._noteQueue.push(note);
-        const tTime = time ?? this.ctx.currentTime;
+        // this._noteQueue.push(note);
+        const tTime = time ? this.ctx.currentTime + this.convertTime(time) : this.ctx.currentTime;
         const frequency = midiToHz(note + (this._octave * 12));
-        if (this.currentNote === null) {
-            this.envelope.triggerAttack(time);
-            this.osc.frequency.exponentialRampToValueAtTime(frequency * 2, tTime + 0.01);
-            this.osc.frequency.exponentialRampToValueAtTime(frequency, tTime + 0.02);
-        } else {
-            this.osc.frequency.exponentialRampToValueAtTime(frequency, tTime + this._slide);
-        }
+        // if (this.currentNote === null) {
+        //     this.envelope.triggerAttack(tTime);
+        //     // this.osc.frequency.exponentialRampToValueAtTime(frequency * 2, tTime + 0.01);
+        //     // this.osc.frequency.exponentialRampToValueAtTime(frequency, tTime + 0.02);
+        //     this.osc.frequency.exponentialRampToValueAtTime(frequency, tTime + 0.001);
+        // } else {
+        //     this.osc.frequency.exponentialRampToValueAtTime(frequency, tTime + this._slide);
+        // }
+        this.currentNote === null && this.envelope.triggerAttack(tTime);
+        this.osc.frequency.setValueAtTime(frequency, tTime);
         this.currentNote = note;
     }
-    sendNoteOff(note: number, time?: number): void {
+    triggerNoteOff(note: number, time?: number): void {
         if (this.currentNote === null) return;
-        this._noteQueue = this._noteQueue.filter(n => n !== note);
-        if (this._noteQueue.length > 0) {
-            this.sendNoteOn(this._noteQueue.pop()!, undefined, time);
-            return;
-        }
+        const tTime = time ? this.ctx.currentTime + this.convertTime(time) : this.ctx.currentTime;
+        // this._noteQueue = this._noteQueue.filter(n => n !== note);
+        // if (this._noteQueue.length > 0) {
+        //     // this.triggerNoteOn(this._noteQueue.pop()!, undefined, tTime);
+        //     return;
+        // }
         this.currentNote = null;
-        const tTime = time ?? this.ctx.currentTime;
         this.envelope.triggerRelease(tTime);
     }
     get octave() {

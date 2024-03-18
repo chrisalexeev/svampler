@@ -8,32 +8,30 @@
         OCTAVE_CHANGE,
     } from "$lib/constants/topics";
 
-    export let monoOsc: MonoOscInst;
+    export let instrument: MonoOscInst;
     let release = 1;
     let slide = 0;
 
-    $: monoOsc.release = release;
-    $: monoOsc.slide = slide;
+    $: instrument.release = release;
+    $: instrument.slide = slide;
 
-    function handleMonoOscNoteDown(topic: string | number, note: number) {
-        if (topic !== NOTE_DOWN) return;
-        monoOsc.sendNoteOn(note);
+    function handleMonoOscNoteDown(note: number) {
+        console.log("note down");
+        instrument.triggerNoteOn(note);
     }
 
-    function handleMonoOscNoteUp(topic: string | number, note: number) {
-        if (topic !== NOTE_UP) return;
-        monoOsc.sendNoteOff(note);
+    function handleMonoOscNoteUp(note: number) {
+        instrument.triggerNoteOff(note);
     }
 
-    function handleOctaveChange(topic: string | number, delta: number) {
-        if (topic !== OCTAVE_CHANGE || Math.abs(delta) !== 1) return;
+    function handleOctaveChange(delta: number) {
+        if (Math.abs(delta) !== 1) return;
         console.log("octave change");
-        monoOsc.octave = monoOsc.octave + delta;
-        
+        instrument.octave = instrument.octave + delta;
     }
 
     onMount(() => {
-        monoOsc.init();
+        instrument.init();
         release = 1;
         eventProcessor.subscribe(NOTE_DOWN, handleMonoOscNoteDown);
         eventProcessor.subscribe(NOTE_UP, handleMonoOscNoteUp);

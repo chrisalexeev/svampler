@@ -1,14 +1,18 @@
-class Instrument {
+import { createId } from "../util";
+import type { Playable } from "./playable";
+
+class Instrument implements Playable {
+    static ids = new Set<number>();
+    readonly id: number;
     ctx: AudioContext;
     output: any;
+    name: string;
 
-    constructor(context: AudioContext) {
+    constructor(context: AudioContext, name?: string) {
         this.ctx = context;
         this.output = this.ctx.createGain();
-        this.init();
-    }
-    init() {
-        console.warn('init() not implemented.');
+        this.id = Instrument.createId();
+        this.name = name || `Instrument-${Math.round(Math.random() * 1000)}`;
     }
     createSource() {
         return this.ctx.createOscillator();
@@ -19,15 +23,23 @@ class Instrument {
     disconnect() {
         this.output.disconnect();
     }
-    sendNoteOn(note: number, velocity?: number, time?: number) {
+    triggerNoteOn(note: number, velocity?: number, time?: number) {
         throw new Error('Method not implemented.');
     }
-    sendNoteOff(time?: number) {
+    triggerNoteOff(note: number, time?: number) {
         throw new Error('Method not implemented.');
     }
     static midiToHz(midiNote: number): number {
         const a = 440; // Frequency of A4 (MIDI note 69)
         return a * Math.pow(2, (midiNote - 69) / 12);
+    }
+    static createId() {
+        let id = createId();
+        while (Instrument.ids.has(id)) {
+            id = Math.round(Math.random() * 1000);
+        }
+        Instrument.ids.add(id);
+        return id;
     }
 }
 
@@ -60,3 +72,5 @@ export class PolyInstrument extends Instrument {
         }
     }
 }
+
+export type InstConstructor<T extends Instrument> = new (ctx: AudioContext, name?: string) => T;

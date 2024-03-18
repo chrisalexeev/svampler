@@ -9,9 +9,9 @@ export class AmpEnvelope {
         this.node = context.createGain();
         this.node.gain.value = 0;
 
-        this.attack = 0.5;
+        this.attack = 0.01;
         this.decay = 0.1;
-        this.release = 0.1;
+        this.release = 0.01;
         this.sustain = 1;
     }
 

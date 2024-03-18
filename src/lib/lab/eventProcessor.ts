@@ -1,11 +1,11 @@
 export class EventProcessor {
-    private subscriberMap: Record<string | number, ((topic: string | number, payload?: any) => void)[]> = {};
+    private subscriberMap: Record<string | number, ((payload?: any) => void)[]> = {};
 
     dispatchEvent(topic: string | number, payload?: any) {
-        this.subscriberMap[topic!] && this.subscriberMap[topic!]?.forEach((callback) => callback(topic, payload));
+        this.subscriberMap[topic!] && this.subscriberMap[topic!]?.forEach((callback) => callback(payload));
     }
 
-    subscribe(topic: string | number, callback: (topic: string | number, payload?: any) => void) {
+    subscribe(topic: string | number, callback: (payload?: any) => void) {
         if (!this.subscriberMap[topic]) {
             this.subscriberMap[topic] = [];
         }
@@ -15,7 +15,7 @@ export class EventProcessor {
         this.subscriberMap[topic].push(callback);
     }
 
-    unsubscribe(topic: string | number, callback: (topic: string | number, payload?: any) => void) {
+    unsubscribe(topic: string | number, callback: (payload?: any) => void) {
         if (!this.subscriberMap[topic]) return;
         this.subscriberMap[topic] = this.subscriberMap[topic].filter((cb) => cb.name !== callback.name);
     }

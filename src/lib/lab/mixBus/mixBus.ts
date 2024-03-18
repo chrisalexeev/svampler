@@ -36,6 +36,16 @@ class MixBus {
         }
         node.connect(this._tracks[trackIndex]!.input);
     }
+    connectToNewTrack(node: AudioNode | Instrument) {
+        const trackIndex = this._tracks.findIndex(track => track.isOpen());
+        if (trackIndex === -1) {
+            throw new Error("No available tracks");
+        }
+        node.connect(this._tracks[trackIndex]!.input);
+    }
+    hasAvailableTrack() {
+        return this._tracks.some(track => !track.input);
+    }
 }
 
 export const mixBus = new MixBus();
