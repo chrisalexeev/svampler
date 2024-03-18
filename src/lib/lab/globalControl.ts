@@ -2,7 +2,16 @@ import { BPM_CHANGE } from "$lib/constants/topics";
 import { eventProcessor } from ".";
 
 class GlobalControl {
-    private _bpm: number = 60;
+    private _bpm: number = 120;
+    private _ctx!: AudioContext;
+
+    get ctx() {
+        return this._ctx;
+    }
+
+    set ctx(value: AudioContext) {
+        this._ctx = value;
+    }
 
     get bpm() {
         return this._bpm;

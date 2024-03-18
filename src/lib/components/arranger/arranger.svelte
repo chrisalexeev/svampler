@@ -23,8 +23,11 @@
     }
 
     function handlePlay() {
-        console.log(arranger)
         arranger.play();
+    }
+
+    function handleStop() {
+        arranger.stop();
     }
 
     onMount(() => {
@@ -38,6 +41,7 @@
 <div class="arranger">
     <button on:click={addArrangement}>Add Arrangement</button>
     <button on:click={handlePlay}>Play</button>
+    <button on:click={handleStop}>Stop</button>
     {#each arrangements as arrangement}
     <Panel menuComponent={ArrangementMenu} menuOptions={{arrangement}}>
         <Arrangement {arrangement} />

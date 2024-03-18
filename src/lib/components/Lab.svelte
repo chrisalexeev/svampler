@@ -12,6 +12,7 @@
     import { instrumentBank } from "$lib/lab/instruments/instrumentBank";
     import Panel from "./shared/Panel.svelte";
     import InstrumentBank from "./instruments/InstrumentBank.svelte";
+    import { globalControl } from "$lib/lab/globalControl";
 
     const ctx = new AudioContext();
     let initialized = false;
@@ -47,6 +48,7 @@
     onMount(() => {
         mixBus.init(ctx);
         instrumentBank.init(ctx);
+        globalControl.ctx = ctx;
         window.addEventListener("keypress", handleKeydown);
         window.addEventListener("keyup", handleKeyup);
         initialized = true;
@@ -81,7 +83,6 @@
         height: 100%;
         display: flex;
         justify-content: center;
-        align-items: center;
         flex-direction: column;
         /* display: grid;
         gap: 20px;

@@ -19,8 +19,9 @@ export class MonoOsc extends MonoInstrument {
         this.envelope = new AmpEnvelope(this.ctx);
         this.envelope.attack = 0.001;
         const [effectsIn, effectsOut] = this.createEffects();
-        this._input = this.ctx.createGain();
-        this._input.connect(effectsIn);
+        // this._input = this.ctx.createGain();
+        // this._input.connect(effectsIn);
+        this.envelope.connect(effectsIn);
         effectsOut.connect(this.output);
         this.osc = this.createSource();
     }
@@ -57,6 +58,7 @@ export class MonoOsc extends MonoInstrument {
     }
     triggerNoteOn(note: number, _velocity?: number | undefined, time?: number | undefined): void {
         if (this.currentNote === note) return;
+        console.count('triggerNoteOn')
         // this._noteQueue.push(note);
         const tTime = time ? this.ctx.currentTime + this.convertTime(time) : this.ctx.currentTime;
         const frequency = midiToHz(note + (this._octave * 12));
@@ -68,12 +70,13 @@ export class MonoOsc extends MonoInstrument {
         // } else {
         //     this.osc.frequency.exponentialRampToValueAtTime(frequency, tTime + this._slide);
         // }
-        this.currentNote === null && this.envelope.triggerAttack(tTime);
+        this.envelope.triggerAttack();
         this.osc.frequency.setValueAtTime(frequency, tTime);
         this.currentNote = note;
     }
     triggerNoteOff(note: number, time?: number): void {
-        if (this.currentNote === null) return;
+        console.count('triggerNoteOff')
+        if (this.currentNote === null || this.currentNote !== note) return;
         const tTime = time ? this.ctx.currentTime + this.convertTime(time) : this.ctx.currentTime;
         // this._noteQueue = this._noteQueue.filter(n => n !== note);
         // if (this._noteQueue.length > 0) {

@@ -12,6 +12,10 @@ class Arranger {
         console.log("playing")
         this.arrangements[this.currentIndex].play();
     }
+
+    stop() {
+        this.arrangements[this.currentIndex].stop();
+    }
 }
 
 export type { Arranger };
