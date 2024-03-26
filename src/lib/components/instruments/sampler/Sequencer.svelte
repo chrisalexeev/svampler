@@ -7,8 +7,8 @@
     const numSlots = sampler.maxSamples;
 
     let bpm = 120;
-    let interval: number;
-    let debounceTimer: number;
+    let interval: NodeJS.Timeout;
+    let debounceTimer: NodeJS.Timeout;
     let running = false;
     const slots: number[][] = new Array(numBeats).fill([]); // TODO: make single array
     let idx = 0;

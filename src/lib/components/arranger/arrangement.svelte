@@ -1,60 +1,37 @@
 <script lang="ts">
     import { REFRESH_NOTES } from "$lib/constants/topics";
     import { eventProcessor } from "$lib/lab";
-    import { Note, type Arrangement } from "$lib/lab/arranger";
+    import { Note as NoteObj, type Arrangement } from "$lib/lab/arranger";
     import { invoker } from "$lib/lab/commands";
     import { AddNoteCommand } from "$lib/lab/commands/arranger";
     import { onMount } from "svelte";
+    import Note from "./note.svelte";
     // import { Note } from "$lib/lab/arranger";
     // import { onMount } from "svelte";
 
     export let arrangement: Arrangement;
     let notes = Object.values(arrangement.notes);
-    let draggingNote: number | null = null;
     let subdivision = 8;
-
-    function createDragBodyHandler(noteId: number) {
-        return (e: DragEvent) => {
-            e.dataTransfer?.setData("text/plain", "move");
-            draggingNote = noteId;
-        };
-    }
-
-    function createDragExtendHandler(noteId: number) {
-        return (e: DragEvent) => {
-            e.dataTransfer?.setData("text/plain", "extend");
-
-            draggingNote = noteId;
-        };
-    }
-
-    function createHandleNoteExtending(noteId: number) {
-        return (e: DragEvent) => {
-            e.dataTransfer?.setData("text/plain", "extend");
-            draggingNote = noteId;
-        };
-    }
 
     function createDropHandler(pitch: number) {
         return (e: DragEvent) => {
             e.preventDefault();
             console.log(e);
             if (e.dataTransfer?.types[0] !== "text/plain") return;
-            const type = e.dataTransfer?.getData("text/plain");
+            const obj = JSON.parse(e.dataTransfer?.getData("text/plain"));
+            const type = obj.type;
             if (type === "extend") {
-                if (draggingNote === null) return;
-                const note = arrangement.notes[draggingNote]!;
+                const note = arrangement.notes[obj.id]!;
                 const dragLoc =
                     e.offsetX /
                     (e.target as HTMLElement).getBoundingClientRect().width;
                 const quantizedLoc =
                     Math.round(dragLoc * subdivision) / subdivision;
                 note.end = quantizedLoc;
-                draggingNote = null;
                 eventProcessor.dispatchEvent(REFRESH_NOTES, arrangement.id);
                 return;
             }
-            if (draggingNote === null) return;
+            const draggingNote = obj.id;
             console.log("dropped", draggingNote, pitch);
             const dragLoc =
                 e.offsetX /
@@ -65,7 +42,6 @@
             arrangement.notes[draggingNote]!.end =
                 quantizedLoc + 1 / subdivision;
             arrangement.notes[draggingNote]!.value = pitch;
-            draggingNote = null;
             eventProcessor.dispatchEvent(REFRESH_NOTES, arrangement.id);
         };
     }
@@ -77,7 +53,7 @@
                 (e.target as HTMLElement).getBoundingClientRect().width;
             const quantizedLoc =
                 Math.floor(clickLoc * subdivision) / subdivision;
-            const note = new Note(
+            const note = new NoteObj(
                 pitch,
                 quantizedLoc,
                 quantizedLoc + 1 / subdivision,
@@ -113,18 +89,7 @@
         >
             {#each notes as note}
                 {#if note.value === i}
-                    <div class="note" style="width: {note.duration *
-                        100}%; transform: scaleX(1); left: {note.start *
-                        100}%;">
-                        <div class="note-start" />
-                        <div
-                            draggable="true"
-                            on:dragstart={createDragBodyHandler(note.id)}
-                            class="note-body"
-                            
-                        ></div>
-                        <div draggable="true" class="note-end" on:dragstart={createDragExtendHandler(note.id)}/>
-                    </div>
+                    <Note {note} />
                 {/if}
             {/each}
         </div>
